@@ -31,7 +31,6 @@ const baseCharOptions = (themeMode: ThemeMode, themeColorPresets: ThemeColorPres
 		lineHeight: themeVars.typography.lineHeight.tight,
 	};
 	return {
-		// Colors
 		colors: [
 			presetsColors[themeColorPresets].default,
 			paletteColors.info.default,
@@ -45,32 +44,27 @@ const baseCharOptions = (themeMode: ThemeMode, themeColorPresets: ThemeColorPres
 			paletteColors.success.dark,
 		],
 
-		// Chart
 		chart: {
 			toolbar: { show: false },
 			zoom: { enabled: false },
 			parentHeightOffset: 0,
 			foreColor: themeVars.colors.text.disabled,
 			fontFamily: themeVars.typography.fontFamily.openSans,
-			// 优化动画配置以提高响应式性能
 			animations: {
 				enabled: true,
 				speed: 360,
 				animateGradually: { enabled: true, delay: 120 },
 				dynamicAnimation: { enabled: true, speed: 360 },
 			},
-			// 启用快速响应式重绘
 			redrawOnParentResize: true,
 			redrawOnWindowResize: true,
 		},
 
-		// States
 		states: {
 			hover: { filter: { type: "darken" } },
 			active: { filter: { type: "darken" } },
 		},
 
-		// Fill
 		fill: {
 			opacity: 1,
 			gradient: {
@@ -82,19 +76,16 @@ const baseCharOptions = (themeMode: ThemeMode, themeColorPresets: ThemeColorPres
 			},
 		},
 
-		// Datalabels
 		dataLabels: {
 			enabled: false,
 		},
 
-		// Stroke
 		stroke: {
 			width: 2.5,
 			curve: "smooth",
 			lineCap: "round",
 		},
 
-		// Grid
 		grid: {
 			strokeDashArray: 3,
 			borderColor: themeVars.colors.background.neutral, // TODO: change to gray[500]
@@ -102,20 +93,16 @@ const baseCharOptions = (themeMode: ThemeMode, themeColorPresets: ThemeColorPres
 			xaxis: { lines: { show: false } },
 		},
 
-		// Xaxis
 		xaxis: { axisBorder: { show: false }, axisTicks: { show: false } },
 		yaxis: { tickAmount: 5 },
 
-		// Markers
 		markers: {
 			size: 0,
 			strokeColors: themeVars.colors.background.paper,
 		},
 
-		// Tooltip
 		tooltip: { theme: themeMode, fillSeriesColor: false, x: { show: true } },
 
-		// Legend
 		legend: {
 			show: false,
 			fontSize: themeVars.typography.fontSize.sm,
@@ -127,17 +114,13 @@ const baseCharOptions = (themeMode: ThemeMode, themeColorPresets: ThemeColorPres
 			labels: { colors: themeVars.colors.text.primary },
 		},
 
-		// plotOptions
 		plotOptions: {
-			// Bar
 			bar: { borderRadius: 4, columnWidth: "48%", borderRadiusApplication: "end" },
 
-			// Pie + Donut
 			pie: {
 				donut: { labels: { show: true, value: { ...LABEL_VALUE }, total: { ...LABEL_TOTAL } } },
 			},
 
-			// Radialbar
 			radialBar: {
 				hollow: { margin: -8, size: "100%" },
 				track: {
@@ -151,7 +134,6 @@ const baseCharOptions = (themeMode: ThemeMode, themeColorPresets: ThemeColorPres
 				},
 			},
 
-			// Radar
 			radar: {
 				polygons: {
 					fill: { colors: ["transparent"] },
@@ -160,7 +142,6 @@ const baseCharOptions = (themeMode: ThemeMode, themeColorPresets: ThemeColorPres
 				},
 			},
 
-			// polarArea
 			polarArea: {
 				rings: {
 					strokeColor: themeVars.colors.background.neutral,
@@ -171,7 +152,6 @@ const baseCharOptions = (themeMode: ThemeMode, themeColorPresets: ThemeColorPres
 			},
 		},
 
-		// Responsive
 		responsive: [
 			{
 				// sm

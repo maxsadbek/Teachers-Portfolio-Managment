@@ -24,7 +24,7 @@ export default function Header({ leftSlot }: HeaderProps) {
 		<header
 			data-slot="slash-layout-header"
 			className={cn(
-				"sticky top-0 left-0 right-0 z-app-bar",
+				"sticky top-0 left-0 right-0 z-30",
 				"flex items-center justify-between px-2 grow-0 shrink-0",
 				"bg-background/60 dark:bg-[#141414] backdrop-blur-xl",
 				"h-[var(--layout-header-height)] ",
