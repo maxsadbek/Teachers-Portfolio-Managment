@@ -1,18 +1,20 @@
 import { GLOBAL_CONFIG } from "@/global-config";
-import { useUserToken } from "@/store/userStore";
+import { useUserInfo, useUserToken } from "@/store/userStore";
 import { useEffect } from "react";
 import { Navigate } from "react-router";
 import LoginForm from "./login-form";
 
 function LoginPage() {
 	const token = useUserToken();
+	const userInfo = useUserInfo();
 
 	useEffect(() => {
 		document.title = "Login | QDTU";
 	}, []);
 
 	if (token.accessToken) {
-		return <Navigate to={GLOBAL_CONFIG.defaultRoute} replace />;
+		const isTeacher = userInfo.roles?.some((r) => r.code === "ROLE_TEACHER");
+		return <Navigate to={isTeacher ? "/teacher-dashboard" : GLOBAL_CONFIG.defaultRoute} replace />;
 	}
 
 	return (

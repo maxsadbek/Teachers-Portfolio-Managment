@@ -5,6 +5,7 @@ import { Component } from "./utils";
 export function getDashboardRoutes(): RouteObject[] {
 	const dashboardRoutes: RouteObject[] = [
 		{ path: "dashboard", element: Component("/pages/dashboard/workbench") },
+		{ path: "teacher-dashboard", element: Component("pages/teacher-dashboard") },
 		{ path: "analysis", element: Component("/pages/dashboard/analysis") },
 		{
 			path: "faculties",

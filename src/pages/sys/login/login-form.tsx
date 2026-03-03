@@ -11,6 +11,33 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
+const FAKE_USERS = [
+	{
+		username: "389221100070",
+		password: "admin123",
+		role: { id: "1", name: "Admin", code: "ROLE_ADMIN" },
+		userInfo: {
+			id: "1",
+			username: "Admin",
+			email: "admin@qdtu.uz",
+			avatar: "",
+		},
+		redirectTo: "/dashboard",
+	},
+	{
+		username: "+998900000000",
+		password: "teacher123",
+		role: { id: "2", name: "Teacher", code: "ROLE_TEACHER" },
+		userInfo: {
+			id: "2",
+			username: "Karimov Bobur Aliyevich",
+			email: "karimov@qdtu.uz",
+			avatar: "",
+		},
+		redirectTo: "/teacher-dashboard",
+	},
+];
+
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<"form">) {
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
@@ -24,19 +51,27 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 		},
 	});
 
-	const handleFinish = async (_values: SignInReq) => {
+	const handleFinish = async (values: SignInReq) => {
 		setLoading(true);
 		try {
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-			setUserToken({ accessToken: "fake-access-token", refreshToken: "fake-refresh-token" });
-			setUserInfo({
-				id: "1",
-				username: "Admin",
-				email: "admin@example.com",
-				avatar: "",
+			await new Promise((resolve) => setTimeout(resolve, 800));
+			const matched = FAKE_USERS.find((u) => u.username === values.username && u.password === values.password);
+
+			if (!matched) {
+				toast.error("ID/Phone yoki parol noto'g'ri", {
+					position: "top-center",
+				});
+				return;
+			}
+
+			setUserToken({
+				accessToken: `fake-token ${matched.role.code}`,
+				refreshToken: `fake-token`,
 			});
-			toast.success("Login muvaffaqiyatli!");
-			navigate(GLOBAL_CONFIG.defaultRoute, { replace: true });
+			setUserInfo({ ...matched.userInfo, roles: [matched.role] });
+			toast.success("Muvaffaqqiyatli kirdingiz!");
+
+			navigate(matched.redirectTo, { replace: true });
 		} catch {
 			toast.error("Xatolik yuz berdi");
 		} finally {
@@ -48,9 +83,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 		<div className={cn("flex flex-col gap-8", className)}>
 			<div className="flex flex-col items-center gap-2 text-center">
 				<h1 className="text-4xl font-bold">Kirish</h1>
-				<p className="text-muted-foreground text-base">
-					Kirish uchun (ID/raqam) va parolingizni kiriting
-				</p>
+				<p className="text-muted-foreground text-base">Kirish uchun (ID/raqam) va parolingizni kiriting</p>
 			</div>
 
 			<Form {...form} {...props}>
@@ -63,11 +96,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 							<FormItem>
 								<FormLabel className="text-base">ID/phone</FormLabel>
 								<FormControl>
-									<Input
-										placeholder="Username"
-										className="h-14 text-base px-4 rounded-lg"
-										{...field}
-									/>
+									<Input placeholder="Username" className="h-14 text-base px-4 rounded-lg" {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>

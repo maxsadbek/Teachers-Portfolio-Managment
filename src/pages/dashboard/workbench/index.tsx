@@ -1,53 +1,38 @@
-import { DataTable, DataTableColumn } from "@/components/data-table/data-table";
-import { Icon } from "@/components/icon";
+import { DataTable } from "@/components/data-table/data-table";
+import type { ColumnDef } from "@/components/data-table/data-table";
+import Icon from "@/components/icon/icon";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/ui/card";
 
+// TODO: Replace with real API data
 const stats = [
-	{
-		label: "Jami O'qituvchilar",
-		value: 507,
-		icon: "mdi:account-group",
-		color: "bg-blue-100",
-		iconColor: "#1d4ed9",
-	},
-	{
-		label: "Erkak O'qituvchilar",
-		value: 214,
-		icon: "mdi:account-tie",
-		color: "bg-cyan-100",
-		iconColor: "#0e7495",
-	},
-	{
-		label: "Ayol O'qituvchilar",
-		value: 293,
-		icon: "mdi:account-heart",
-		color: "bg-pink-100",
-		iconColor: "#be185d",
-	},
-	{
-		label: "Ilmiy Darajalar Bilan",
-		value: 247,
-		icon: "mdi:school",
-		color: "bg-violet-100",
-		iconColor: "#7e22ce",
-	},
+	{ label: "Jami O'qituvchilar", value: 248, icon: "mdi:account-group", color: "bg-blue-100", iconColor: "#1d4ed8" },
+	{ label: "Erkak O'qituvchilar", value: 142, icon: "mdi:account-tie", color: "bg-cyan-100", iconColor: "#0e7490" },
+	{ label: "Ayol O'qituvchilar", value: 106, icon: "mdi:account-heart", color: "bg-pink-100", iconColor: "#be185d" },
+	{ label: "Ilmiy Darajalar Bilan", value: 87, icon: "mdi:school", color: "bg-purple-100", iconColor: "#7e22ce" },
 ];
 
-const positionStats = [
-	{ label: "Professorlar", value: 20, icon: "mdi:account-star", border: "border-l-amber-500" },
-	{ label: "Dotsent", value: 45, icon: "mdi:account-badge", border: "border-l-blue-500" },
+const kafedraStats = [
+	{ label: "Jami bo'limlar", value: 12, icon: "mdi:office-building", bg: "bg-orange-500" },
+	{ label: "Jami tadqiqotlar", value: 34, icon: "mdi:flask", bg: "bg-green-500" },
+	{ label: "Fakultetda faol xodimlar", value: 198, icon: "mdi:account-check", bg: "bg-blue-500" },
+	{ label: "Bu oy taqdimnoma", value: 7, icon: "mdi:presentation", bg: "bg-violet-500" },
+];
+
+const lavozimlarStats = [
+	{ label: "Professorlar", value: 18, icon: "mdi:account-star", border: "border-l-amber-500" },
+	{ label: "Dotsentlar", value: 45, icon: "mdi:account-badge", border: "border-l-blue-500" },
 	{ label: "Katta o'qituvchilar", value: 97, icon: "mdi:account-school", border: "border-l-green-500" },
-	{ label: "Assistentlar", value: 80, icon: "mdi:account-supervisor", border: "border-l-rose-500" },
+	{ label: "Assistentlar", value: 88, icon: "mdi:account-student", border: "border-l-rose-500" },
 ];
 
-const knowledgeStats = [
+const ilmiyFaoliyat = [
 	{ label: "Nashr etilgan maqolalar", value: 312, icon: "mdi:newspaper-variant", iconColor: "#0369a1" },
 	{ label: "Patentlar va ixtirolar", value: 24, icon: "mdi:certificate", iconColor: "#b45309" },
 	{ label: "Xalqaro konferensiyalar", value: 56, icon: "mdi:earth", iconColor: "#047857" },
 	{ label: "Loyihalar soni", value: 19, icon: "mdi:briefcase", iconColor: "#7c3aed" },
 ];
 
-const educationStats = [
+const talimDarajalari = [
 	{ label: "Fan doktorlari (DSc)", value: 23, icon: "mdi:medal", color: "text-amber-500", bg: "bg-amber-50" },
 	{
 		label: "Falsafa doktorlari (PhD)",
@@ -59,12 +44,33 @@ const educationStats = [
 	{ label: "Magistrlar", value: 161, icon: "mdi:book-education", color: "text-emerald-600", bg: "bg-emerald-50" },
 ];
 
-const kafedraStats = [
-	{ label: "Jami bo'limlar", value: 12, icon: "mdi:office-building", bg: "bg-orange-500" },
-	{ label: "Jami tadqiqotlar", value: 34, icon: "mdi:flask", bg: "bg-green-500" },
-	{ label: "Fakultetda faol xodimlar", value: 198, icon: "mdi:account-check", bg: "bg-blue-500" },
-	{ label: "Bu oy taqdimnoma", value: 7, icon: "mdi:presentation", bg: "bg-violet-500" },
+const yillikFaoliyat = [
+	{
+		label: "Bu yil qo'shilgan o'qituvchilar",
+		value: 14,
+		icon: "mdi:account-plus",
+		badge: "bg-green-100 text-green-700",
+	},
+	{ label: "Shartnomasi tugayotganlar", value: 8, icon: "mdi:file-clock", badge: "bg-red-100 text-red-700" },
+	{ label: "Xorijiy tajribadan qaytganlar", value: 5, icon: "mdi:airplane-landing", badge: "bg-sky-100 text-sky-700" },
+	{
+		label: "Attestatsiyadan o'tganlar",
+		value: 112,
+		icon: "mdi:check-decagram",
+		badge: "bg-purple-100 text-purple-700",
+	},
 ];
+
+const engFaolBolim = {
+	nomi: "Farmatsiya va kimyo kafedrasi",
+	taqdimotlar: 3024,
+};
+
+const oxirgiFailiyat = {
+	ism: "KUZIEV OTABEK JURAKULOVICH",
+	vaqt: "21 soat oldin",
+};
+
 type KafedraRow = {
 	nomi: string;
 	fakultet: string;
@@ -75,41 +81,43 @@ type KafedraRow = {
 	oxirgiSana: string;
 };
 
-const kafedraColumns: DataTableColumn<KafedraRow>[] = [
+const kafedraColumns: ColumnDef<KafedraRow>[] = [
 	{
-		key: "nomi",
-		label: "Kafedra Nomi",
-		render: (row) => <span className="font-medium">{row.nomi}</span>,
+		accessorKey: "nomi",
+		header: "Kafedra Nomi",
+		cell: ({ row }) => <span className="font-medium">{row.getValue("nomi")}</span>,
 	},
 	{
-		key: "fakultet",
-		label: "Fakultet",
-		render: (row) => <span className="text-muted-foreground">{row.fakultet}</span>,
+		accessorKey: "fakultet",
+		header: "Fakultet",
+		cell: ({ row }) => <span className="text-muted-foreground">{row.getValue("fakultet")}</span>,
 	},
 	{
-		key: "taqdimotlar",
-		label: "Jami Taqdimotlar",
-		align: "right",
-		render: (row) => <span className="font-bold">{row.taqdimotlar.toLocaleString()}</span>,
-	},
-	{
-		key: "xodimlar",
-		label: "Kafedra Xodimlari",
-		align: "right",
-		render: (row) => (
-			<span className="bg-blue-100 text-blue-700 text-[12px] font-semibold px-2 py-0.5 rounded-full">
-				{row.xodimlar}
-			</span>
+		accessorKey: "taqdimotlar",
+		header: () => <div className="text-right">Jami Taqdimotlar</div>,
+		cell: ({ row }) => (
+			<div className="text-right font-bold">{(row.getValue("taqdimotlar") as number).toLocaleString()}</div>
 		),
 	},
 	{
-		key: "oxirgiKim",
-		label: "Oxirgi Yuborish",
-		render: (row) => (
+		accessorKey: "xodimlar",
+		header: () => <div className="text-right">Kafedra Xodimlari</div>,
+		cell: ({ row }) => (
+			<div className="text-right">
+				<span className="bg-blue-100 text-blue-700 text-[12px] font-semibold px-2 py-0.5 rounded-full">
+					{row.getValue("xodimlar") as number}
+				</span>
+			</div>
+		),
+	},
+	{
+		accessorKey: "oxirgiKim",
+		header: "Oxirgi Yuborish",
+		cell: ({ row }) => (
 			<div className="flex flex-col gap-0.5">
-				<span className="font-medium">{row.oxirgiKim}</span>
+				<span className="font-medium">{row.getValue("oxirgiKim")}</span>
 				<span className="text-[11px] text-muted-foreground">
-					{row.oxirgiVaqt} · {row.oxirgiSana}
+					{row.original.oxirgiVaqt} · {row.original.oxirgiSana}
 				</span>
 			</div>
 		),
@@ -191,128 +199,125 @@ const kafedraTable = [
 	},
 ];
 
-const engFaolBolim = {
-	nomi: "Farmatsiya va kimyo kafedrasi",
-	taqdimotlar: 3024,
-};
-
-const oxirgiFailiyat = {
-	ism: "KUZIEV OTABEK JURAKULOVICH",
-	vaqt: "21 soat oldin",
-};
 export default function Workbench() {
 	return (
-		<div className="flex flex-col gap-4 w-full">
-			<span className="text-[18px] font-semibold capitalize">Umumiy statistika</span>
-			{/* Umumiy statistika */}
+		<div className="flex flex-col gap-6 w-full">
+			{/* 1. Asosiy o'qituvchilar statistikasi */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-				{stats.map((stat) => {
-					const { color, icon, label, value, iconColor } = stat;
-					return (
+				{stats.map((stat) => (
+					<Card key={stat.label}>
+						<CardHeader className="flex flex-row items-center justify-between pb-2">
+							<CardTitle>
+								<span className="text-[12px] font-medium text-muted-foreground">{stat.label}</span>
+							</CardTitle>
+							<CardAction className={`rounded-full ${stat.color} p-2 w-10 h-10 flex items-center justify-center`}>
+								<Icon icon={stat.icon} size={20} color={stat.iconColor} />
+							</CardAction>
+						</CardHeader>
+						<CardContent>
+							<span className="text-[24px] font-bold">{stat.value.toLocaleString()}</span>
+						</CardContent>
+					</Card>
+				))}
+			</div>
+
+			{/* 2. Lavozimlar bo'yicha */}
+			<div className="flex flex-col gap-3">
+				<span className="text-[14px] font-semibold">Lavozimlar bo'yicha</span>
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+					{lavozimlarStats.map((stat) => (
+						<Card key={stat.label} className={`border-l-4 ${stat.border} py-0`}>
+							<CardContent className="flex items-center justify-between px-4 py-3">
+								<div className="flex flex-col gap-0.5">
+									<span className="text-[12px] text-muted-foreground leading-tight">{stat.label}</span>
+									<span className="text-[20px] font-bold leading-tight">{stat.value}</span>
+								</div>
+								<Icon icon={stat.icon} size={28} className="text-muted-foreground opacity-30" />
+							</CardContent>
+						</Card>
+					))}
+				</div>
+			</div>
+
+			{/* 3. Ilmiy Faoliyat */}
+			<div className="flex flex-col gap-3">
+				<span className="text-[14px] font-semibold">Ilmiy Faoliyat</span>
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+					{ilmiyFaoliyat.map((stat) => (
+						<Card key={stat.label} className="py-0">
+							<CardContent className="flex flex-col items-center justify-center gap-1 px-4 py-4 text-center">
+								<Icon icon={stat.icon} size={28} color={stat.iconColor} />
+								<span className="text-[22px] font-bold leading-tight">{stat.value.toLocaleString()}</span>
+								<span className="text-[11px] text-muted-foreground leading-tight">{stat.label}</span>
+							</CardContent>
+						</Card>
+					))}
+				</div>
+			</div>
+
+			{/* 4. Ta'lim Darajalari */}
+			<div className="flex flex-col gap-3">
+				<span className="text-[14px] font-semibold">Ta'lim Darajalari</span>
+				<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+					{talimDarajalari.map((stat) => (
+						<Card key={stat.label} className={`${stat.bg} border-0 py-0`}>
+							<CardContent className="flex items-center gap-4 px-5 py-4">
+								<Icon icon={stat.icon} size={32} className={stat.color} />
+								<div className="flex flex-col gap-0.5">
+									<span className="text-[12px] text-muted-foreground leading-tight">{stat.label}</span>
+									<span className={`text-[22px] font-bold leading-tight ${stat.color}`}>{stat.value}</span>
+								</div>
+							</CardContent>
+						</Card>
+					))}
+				</div>
+			</div>
+
+			{/* 5. Yillik Faoliyat */}
+			<div className="flex flex-col gap-3">
+				<span className="text-[14px] font-semibold">Yillik Faoliyat</span>
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+					{yillikFaoliyat.map((stat) => (
+						<Card key={stat.label} className="py-0">
+							<CardContent className="flex items-center justify-between px-4 py-3">
+								<div className="flex items-center gap-3">
+									<Icon icon={stat.icon} size={20} className="text-muted-foreground" />
+									<span className="text-[12px] text-muted-foreground leading-tight">{stat.label}</span>
+								</div>
+								<span className={`text-[13px] font-bold px-2 py-0.5 rounded-full ${stat.badge}`}>{stat.value}</span>
+							</CardContent>
+						</Card>
+					))}
+				</div>
+			</div>
+
+			{/* 6. Kafedra Statistikasi — katta, tablening ustida */}
+			<div className="flex flex-col gap-3">
+				<span className="text-[14px] font-semibold">Kafedra Statistikasi</span>
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+					{kafedraStats.map((stat) => (
 						<Card key={stat.label}>
 							<CardHeader className="flex flex-row items-center justify-between pb-2">
 								<CardTitle>
-									<span className="text-[14px] font-medium text-muted-foreground">{label}</span>
+									<span className="text-[13px] font-medium text-muted-foreground">{stat.label}</span>
 								</CardTitle>
-								<CardAction className={`rounded-full ${color} p-2 w-12 h-12 flex items-center justify-center`}>
-									<Icon icon={icon} size={24} color={iconColor} />
+								<CardAction className={`${stat.bg} rounded-xl p-3 w-12 h-12 flex items-center justify-center`}>
+									<Icon icon={stat.icon} size={24} color="white" />
 								</CardAction>
 							</CardHeader>
 							<CardContent>
-								<span className="text-[24px] font-bold">{value.toLocaleString()}</span>
+								<span className="text-[28px] font-bold">{stat.value.toLocaleString()}</span>
 							</CardContent>
 						</Card>
-					);
-				})}
-			</div>
-			{/* Lavozim bo'yicha statistika */}
-			<div className="flex flex-col gap-3">
-				<span className="text-[18px] font-semibold capitalize">Lavozimlar bo'yicha</span>
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-					{positionStats.map((stat) => {
-						const { border, icon, label, value } = stat;
-						return (
-							<Card key={label} className={`border-l-4 ${border} py-0`}>
-								<CardContent className="flex items-center justify-between px-4 py-3 ">
-									<div className="flex flex-col gap-y-0.5">
-										<span className="text-[12px] font-bold leading-tight">{label}</span>
-										<span className="text-[20px] text-muted-foreground ">{value.toLocaleString()}</span>
-									</div>
-									<Icon icon={icon} size={28} className="text-muted-foreground opacity-40" />
-								</CardContent>
-							</Card>
-						);
-					})}
-				</div>
-			</div>
-			{/* Ilmiy faoliyat bo'yicha statistika */}
-			<div className="flex flex-col gap-3">
-				<span className="text-[18px] font-semibold capitalize">Ilmiy darajalari</span>
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-					{knowledgeStats.map((stat) => {
-						const { icon, iconColor, label, value } = stat;
-						return (
-							<Card key={label} className="py-0">
-								<CardContent className="flex flex-col items-center justify-center gap-1 px-4 py-4 text-center">
-									<Icon icon={icon} size={28} color={iconColor} />
-									<span className="text-[22px] font-bold leading-tight">{value.toLocaleString()}</span>
-									<span className="text-[11px] text-muted-foreground leading-tight">{label}</span>
-								</CardContent>
-							</Card>
-						);
-					})}
+					))}
 				</div>
 			</div>
 
-			{/* Ta'lim darajasi bo'yicha statistika */}
-			<div className="flex flex-col gap-3">
-				<span className="text-[18px] font-semibold capitalize">Ta'lim Darajalari</span>
-				<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-					{educationStats.map((stat) => {
-						const { bg, color, icon, label, value } = stat;
-						return (
-							<Card key={label} className={`${bg} dark:bg-[#141414] border-0 py-0`}>
-								<CardContent className="flex items-center gap-4 px-5 py-4">
-									<Icon icon={icon} size={32} className={color} />
-									<div className="flex flex-col gap-0.5">
-										<span className="text-[12px] text-muted-foreground leading-tight">{label}</span>
-										<span className={`text-[22px] font-bold leading-tight ${color}`}>{value}</span>
-									</div>
-								</CardContent>
-							</Card>
-						);
-					})}
-				</div>
-			</div>
-
-			{/* Kafedralar bo'yicha statistika */}
-			<div className="flex flex-col gap-3">
-				<span className="text-[18px] font-semibold capitalize">Kafedra Statistikasi</span>
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-					{kafedraStats.map((stat) => {
-						const { bg, icon, label, value } = stat;
-						return (
-							<Card key={label}>
-								<CardHeader className="flex flex-row items-center justify-between pb-2">
-									<CardTitle>
-										<span className="text-[13px] font-medium text-muted-foreground">{label}</span>
-									</CardTitle>
-									<CardAction className={`${bg} rounded-full p-3 w-12 h-12 flex items-center justify-center`}>
-										<Icon icon={icon} size={24} color="white" />
-									</CardAction>
-								</CardHeader>
-								<CardContent>
-									<span className="text-[28px] font-bold">{value.toLocaleString()}</span>
-								</CardContent>
-							</Card>
-						);
-					})}
-				</div>
-			</div>
-			{/* Kafedra table statistika */}
+			{/* 7. Eng faol bo'lim + Oxirgi faoliyat */}
+			{/* 9. Kafedralar Haqida Umumiy Ma'lumot */}
 			<div className="flex flex-col gap-3">
 				<div className="flex flex-col gap-0.5">
-					<span className="text-[18px] font-semibold capitalize">Kafedralar Haqida Umumiy Ma'lumot</span>
+					<span className="text-[14px] font-semibold">Kafedralar Haqida Umumiy Ma'lumot</span>
 					<span className="text-[12px] text-muted-foreground">
 						Har bir bo'lim uchun batafsil statistika, shu jumladan taqdimotlar va so'nggi faoliyat
 					</span>
@@ -320,7 +325,7 @@ export default function Workbench() {
 				<DataTable data={kafedraTable} columns={kafedraColumns} />
 			</div>
 
-			{/* Oxirgi faoliyat */}
+			{/* 10. Eng faol bo'lim + Oxirgi faoliyat */}
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 				{/* Eng faol bo'lim */}
 				<Card className="border-0" style={{ backgroundColor: "#23B257" }}>

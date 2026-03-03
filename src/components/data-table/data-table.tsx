@@ -1,76 +1,138 @@
-import { Card, CardContent } from "@/ui/card";
-import { cn } from "@/utils";
-import type { ReactNode } from "react";
+import {
+	type ColumnDef,
+	flexRender,
+	getCoreRowModel,
+	getPaginationRowModel,
+	useReactTable,
+} from "@tanstack/react-table";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { useState } from "react";
 
-export type DataTableColumn<T> = {
-	key: keyof T | string;
-	label: string;
-	align?: "left" | "right" | "center";
-	render?: (row: T) => ReactNode;
-};
+import { Button } from "@/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui/table";
+
+export type { ColumnDef };
+
+const PAGE_SIZE = 10;
 
 type DataTableProps<T> = {
-	columns: DataTableColumn<T>[];
+	columns: ColumnDef<T>[];
 	data: T[];
-	striped?: boolean;
-	className?: string;
 };
 
-export function DataTable<T extends Record<string, any>>({
-	columns,
-	data,
-	striped = true,
-	className,
-}: DataTableProps<T>) {
+export function DataTable<T>({ columns, data }: DataTableProps<T>) {
+	const [pageIndex, setPageIndex] = useState(0);
+
+	const table = useReactTable({
+		data,
+		columns,
+		getCoreRowModel: getCoreRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		state: { pagination: { pageIndex, pageSize: PAGE_SIZE } },
+		onPaginationChange: (updater) => {
+			const next = typeof updater === "function" ? updater({ pageIndex, pageSize: PAGE_SIZE }) : updater;
+			setPageIndex(next.pageIndex);
+		},
+		manualPagination: false,
+	});
+
+	const totalPages = table.getPageCount();
+	const showPagination = data.length > PAGE_SIZE;
+
 	return (
-		<Card className={cn("overflow-hidden", className)}>
-			<CardContent className="p-0">
-				<div className="overflow-x-auto">
-					<table className="w-full text-[13px]">
-						<thead>
-							<tr className="border-b bg-muted/40">
-								{columns.map((col) => (
-									<th
-										key={String(col.key)}
-										className={cn(
-											"px-4 py-3 font-semibold text-muted-foreground",
-											col.align === "right" && "text-right",
-											col.align === "center" && "text-center",
-											!col.align && "text-left",
-										)}
-									>
-										{col.label}
-									</th>
+		<div className="flex flex-col gap-3">
+			<div className="rounded-md border">
+				<Table>
+					<TableHeader>
+						{table.getHeaderGroups().map((headerGroup) => (
+							<TableRow key={headerGroup.id}>
+								{headerGroup.headers.map((header) => (
+									<TableHead key={header.id}>
+										{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+									</TableHead>
 								))}
-							</tr>
-						</thead>
-						<tbody>
-							{data.map((row, i) => (
-								<tr
-									key={i as any}
-									className={cn(
-										"border-b last:border-0 hover:bg-muted/20 transition-colors",
-										striped && i % 2 !== 0 && "bg-muted/10",
-									)}
-								>
-									{columns.map((col) => (
-										<td
-											key={String(col.key)}
-											className={cn(
-												"px-4 py-3",
-												col.align === "right" && "text-right",
-												col.align === "center" && "text-center",
-											)}
-										>
-											{col.render ? col.render(row) : row[col.key as keyof T]}
-										</td>
+							</TableRow>
+						))}
+					</TableHeader>
+					<TableBody>
+						{table.getRowModel().rows.length ? (
+							table.getRowModel().rows.map((row) => (
+								<TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+									{row.getVisibleCells().map((cell) => (
+										<TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
 									))}
-								</tr>
-							))}
-						</tbody>
-					</table>
+								</TableRow>
+							))
+						) : (
+							<TableRow>
+								<TableCell colSpan={columns.length} className="h-24 text-center">
+									Ma'lumot topilmadi.
+								</TableCell>
+							</TableRow>
+						)}
+					</TableBody>
+				</Table>
+			</div>
+
+			{showPagination && (
+				<div className="flex items-center justify-between px-1">
+					<span className="text-[13px] text-muted-foreground">
+						Jami {data.length} ta | {pageIndex + 1} / {totalPages} sahifa
+					</span>
+
+					<div className="flex items-center gap-1">
+						<Button
+							variant="outline"
+							size="icon"
+							className="h-8 w-8"
+							onClick={() => setPageIndex(0)}
+							disabled={!table.getCanPreviousPage()}
+						>
+							<ChevronsLeft className="size-4" />
+						</Button>
+						<Button
+							variant="outline"
+							size="icon"
+							className="h-8 w-8"
+							onClick={() => setPageIndex((p) => p - 1)}
+							disabled={!table.getCanPreviousPage()}
+						>
+							<ChevronLeft className="size-4" />
+						</Button>
+
+						{Array.from({ length: totalPages }, (_, i) => i).map((i) => (
+							<Button
+								key={i}
+								variant={i === pageIndex ? "default" : "outline"}
+								size="icon"
+								className="h-8 w-8 text-[13px]"
+								onClick={() => setPageIndex(i)}
+							>
+								{i + 1}
+							</Button>
+						))}
+
+						<Button
+							variant="outline"
+							size="icon"
+							className="h-8 w-8"
+							onClick={() => setPageIndex((p) => p + 1)}
+							disabled={!table.getCanNextPage()}
+						>
+							<ChevronRight className="size-4" />
+						</Button>
+						<Button
+							variant="outline"
+							size="icon"
+							className="h-8 w-8"
+							onClick={() => setPageIndex(totalPages - 1)}
+							disabled={!table.getCanNextPage()}
+						>
+							<ChevronsRight className="size-4" />
+						</Button>
+					</div>
 				</div>
-			</CardContent>
-		</Card>
+			)}
+		</div>
 	);
 }
