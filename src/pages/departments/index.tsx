@@ -1,9 +1,16 @@
 import { DataTable } from "@/components/data-table/data-table";
 import type { ColumnDef } from "@/components/data-table/data-table";
+import { FileInput } from "@/components/file-input/file-input";
+import { Modal } from "@/components/modal/modal";
+import { SearchableSelect } from "@/components/searchable-select/searchable-select";
 import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
-import { Pencil, Trash2 } from "lucide-react";
+import { useModalActions, useModalIsOpen } from "@/store/modalStore";
+import { Button } from "@/ui/button";
+import { Input } from "@/ui/input";
+import { Label } from "@/ui/label";
+import { Pencil, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
-
+import { Controller, useForm } from "react-hook-form";
 type DepartmentFormValues = {
 	name: string;
 	facultyId: string;
@@ -95,7 +102,10 @@ const columns: ColumnDef<Department>[] = [
 ];
 
 export default function Departments() {
+	const isOpen = useModalIsOpen();
 	const [search, setSearch] = useState("");
+	const { open, close } = useModalActions();
+
 	const filtered = useMemo(
 		() =>
 			DEPARTMENTS.filter(
@@ -104,6 +114,35 @@ export default function Departments() {
 			),
 		[search],
 	);
+	const {
+		register,
+		handleSubmit,
+		reset,
+		control,
+		formState: { errors },
+	} = useForm<DepartmentFormValues>({
+		defaultValues: { name: "", image: null },
+	});
+
+	const handleClose = () => {
+		reset();
+		close();
+	};
+
+	const onSubmit = (values: DepartmentFormValues) => {
+		// const faculty = FACULTIES.find((f) => f.value === values.facultyId);
+		// if (isEdit) {
+		// 	console.log("Kafedra tahrirlandi:", {
+		// 		id: editData.id,
+		// 		name: values.name,
+		// 		faculty: faculty?.label,
+		// 		image: values.image,
+		// 	});
+		// } else {
+		// }
+		console.log("Yangi kafedra:", { name: values.name, faculty: "sd", image: values.image });
+		handleClose();
+	};
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -112,11 +151,59 @@ export default function Departments() {
 				count={filtered.length}
 				searchValue={search}
 				onSearchChange={setSearch}
-				onAdd={() => alert("Kafedra qo'shish")}
+				onAdd={() => open()}
 				addLabel="Kafedra qo'shish"
 			/>
 
 			<DataTable columns={columns} data={filtered} />
+
+			<Modal open={isOpen} onClose={handleClose} title="Fakultet qo'shish">
+				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-2">
+					<Label>Rasm</Label>
+					<Controller
+						name="image"
+						control={control}
+						render={({ field }) => <FileInput type="image" value={field.value} onChange={field.onChange} />}
+					/>
+					{/* Fakultet select */}
+
+					<div className="flex flex-col gap-2">
+						<Label>Fakultet</Label>
+						<Controller
+							name="facultyId"
+							control={control}
+							rules={{ required: "Fakultet tanlanishi shart" }}
+							render={({ field }) => (
+								<SearchableSelect
+									options={FACULTIES}
+									value={field.value}
+									onChange={field.onChange}
+									placeholder="Fakultetni tanlang"
+									searchPlaceholder="Fakultet qidirish..."
+								/>
+							)}
+						/>
+						{errors.facultyId && <span className="text-[12px] text-red-500">{errors.facultyId.message}</span>}
+					</div>
+
+					<div className="flex flex-col gap-2">
+						<Label htmlFor="faculty-name">Kafedra nomi</Label>
+						<Input
+							id="department-name"
+							placeholder="Masalan: Kompyuter kafedrasi"
+							{...register("name", { required: "Kafedra nomi kiritilishi shart" })}
+						/>
+						{errors.name && <span className="text-[12px] text-red-500">{errors.name.message}</span>}
+					</div>
+
+					<div className="flex justify-end gap-2">
+						<Button type="button" variant="outline" onClick={handleClose}>
+							Bekor qilish
+						</Button>
+						<Button type="submit">{"Qo'shish"}</Button>
+					</div>
+				</form>
+			</Modal>
 		</div>
 	);
 }
