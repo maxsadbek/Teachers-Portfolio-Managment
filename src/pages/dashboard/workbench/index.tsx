@@ -3,7 +3,6 @@ import type { ColumnDef } from "@/components/data-table/data-table";
 import Icon from "@/components/icon/icon";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/ui/card";
 
-// TODO: Replace with real API data
 const stats = [
 	{ label: "Jami O'qituvchilar", value: 248, icon: "mdi:account-group", color: "bg-blue-100", iconColor: "#1d4ed8" },
 	{ label: "Erkak O'qituvchilar", value: 142, icon: "mdi:account-tie", color: "bg-cyan-100", iconColor: "#0e7490" },
@@ -260,7 +259,7 @@ export default function Workbench() {
 				<span className="text-[14px] font-semibold">Ta'lim Darajalari</span>
 				<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 					{talimDarajalari.map((stat) => (
-						<Card key={stat.label} className={`${stat.bg} border-0 py-0`}>
+						<Card key={stat.label} className={`${stat.bg} dark:bg-[#141414] border-0 py-0`}>
 							<CardContent className="flex items-center gap-4 px-5 py-4">
 								<Icon icon={stat.icon} size={32} className={stat.color} />
 								<div className="flex flex-col gap-0.5">
@@ -328,7 +327,7 @@ export default function Workbench() {
 			{/* 10. Eng faol bo'lim + Oxirgi faoliyat */}
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 				{/* Eng faol bo'lim */}
-				<Card className="border-0" style={{ backgroundColor: "#23B257" }}>
+				<Card className="border-0 bg-[#23B257] dark:bg-[#141414] dark:border-2 dark:border-[#23B257]">
 					<CardContent className="flex flex-col gap-2 px-6 py-5">
 						<span className="text-[13px] font-medium text-white/70">Eng Faol Bo'lim</span>
 						<span className="text-[18px] font-bold text-white">{engFaolBolim.nomi}</span>
@@ -337,7 +336,7 @@ export default function Workbench() {
 				</Card>
 
 				{/* Oxirgi faoliyat */}
-				<Card className="border-0" style={{ backgroundColor: "#3676F0" }}>
+				<Card className="border-0 bg-[#3676F0] dark:bg-[#141414] dark:border-2 dark:border-[#3676F0]">
 					<CardContent className="flex flex-col gap-2 px-6 py-5">
 						<span className="text-[13px] font-medium text-white/70">Oxirgi Faoliyat</span>
 						<span className="text-[18px] font-bold text-white">{oxirgiFailiyat.ism}</span>
