@@ -114,7 +114,7 @@ export default function Positions() {
 			</div>
 
 			<Modal open={isOpen} onClose={handleClose} title="Lavozim qo'shish">
-				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-2">
+				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-2 dark:text-white">
 					<div className="flex flex-col gap-2">
 						<Label htmlFor="position-name">Lavozim nomi</Label>
 						<Input

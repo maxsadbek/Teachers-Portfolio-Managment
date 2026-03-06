@@ -187,7 +187,7 @@ export default function Departments() {
 			<DataTable columns={columns} data={filtered} />
 
 			<Modal open={isOpen} onClose={handleClose} title={isEdit ? "Fakultetni tahrirlash" : "Fakultet qo'shish"}>
-				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-2">
+				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-2 dark:text-white">
 					<Label>Rasm</Label>
 					<Controller
 						name="image"

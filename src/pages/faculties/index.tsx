@@ -136,7 +136,7 @@ export default function Faculties() {
 	};
 
 	return (
-		<div className="flex flex-col gap-4">
+		<div className="flex flex-col gap-4 dark:text-white">
 			<TableToolbar
 				countLabel="Fakultetlar soni"
 				count={FACULTIES.length}
@@ -153,20 +153,20 @@ export default function Faculties() {
 				onClose={handleClose}
 				title={isEdit ? "Fakultet tahrirlash" : "Fakultet qo'shish"}
 			>
-				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-2">
+				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-2 dark:text-white">
 					<div className="flex flex-col gap-2">
-						<Label>Rasm</Label>
+						<Label className="dark:text-white">Rasm</Label>
 						<Controller
 							name="image"
 							control={control}
 							render={({ field }) => (
-								<FileInput type="image" value={field.value} onChange={field.onChange} />
+								<FileInput type="image" value={field.value} onChange={field.onChange} className="dark:text-white"/>
 							)}
 						/>
 					</div>
 
 					<div className="flex flex-col gap-2">
-						<Label htmlFor="faculty-name">Fakultet nomi</Label>
+						<Label htmlFor="faculty-name" >Fakultet nomi</Label>
 						<Input
 							id="faculty-name"
 							placeholder="Masalan: Davolash fakulteti"
@@ -178,7 +178,7 @@ export default function Faculties() {
 					</div>
 
 					<div className="flex justify-end gap-2">
-						<Button type="button" variant="outline" onClick={handleClose}>Bekor qilish</Button>
+						<Button type="button" variant="outline" onClick={handleClose} className="dark:text-white">Bekor qilish</Button>
 						<Button type="submit">{isEdit ? "Saqlash" : "Qo'shish"}</Button>
 					</div>
 				</form>
