@@ -18,9 +18,10 @@ const PAGE_SIZE = 10;
 type DataTableProps<T> = {
 	columns: ColumnDef<T>[];
 	data: T[];
+	onRowClick?: (row: T) => void;
 };
 
-export function DataTable<T>({ columns, data }: DataTableProps<T>) {
+export function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
 	const [pageIndex, setPageIndex] = useState(0);
 
 	const table = useReactTable({
@@ -57,7 +58,12 @@ export function DataTable<T>({ columns, data }: DataTableProps<T>) {
 					<TableBody>
 						{table.getRowModel().rows.length ? (
 							table.getRowModel().rows.map((row) => (
-								<TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+								<TableRow
+									key={row.id}
+									data-state={row.getIsSelected() && "selected"}
+									onClick={() => onRowClick?.(row.original)}
+									className={onRowClick ? "cursor-pointer hover:bg-muted/10" : ""}
+								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
 									))}

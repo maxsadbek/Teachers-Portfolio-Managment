@@ -99,7 +99,7 @@ export default function Teachers() {
 				</Button>
 			</div>
 
-			<DataTable columns={columns} data={TEACHERS} />
+			<DataTable columns={columns} data={TEACHERS} onRowClick={(row) => navigate(`/teachers/${row.id}`)} />
 
 			<TeacherSheet />
 		</div>

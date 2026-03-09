@@ -14,6 +14,7 @@ export function getDashboardRoutes(): RouteObject[] {
 				{ path: "departments", element: Component("/pages/departments") },
 				{ path: "teachers", element: Component("/pages/teachers") },
 				{ path: "positions", element: Component("/pages/positions") },
+				{ path: "teachers/:id", element: Component("/pages/teachers/detail") },
 			],
 		},
 		{
