@@ -19,7 +19,14 @@ export function getDashboardRoutes(): RouteObject[] {
 		},
 		{
 			element: <RoleAuthGuard teacherOnly />,
-			children: [{ path: "teacher-dashboard", element: Component("pages/teacher-dashboard") }],
+			children: [
+				{ path: "teacher-dashboard", element: Component("/pages/teacher-dashboard") },
+				{ path: "teacher-dashboard/profile", element: Component("/pages/teacher-dashboard/profile") },
+				{ path: "teacher-dashboard/researches", element: Component("/pages/teacher-dashboard/researches") },
+				{ path: "teacher-dashboard/publications", element: Component("/pages/teacher-dashboard/publications") },
+				{ path: "teacher-dashboard/consultations", element: Component("/pages/teacher-dashboard/consultations") },
+				{ path: "teacher-dashboard/awards", element: Component("/pages/teacher-dashboard/awards") },
+			],
 		},
 		{
 			path: "error",
