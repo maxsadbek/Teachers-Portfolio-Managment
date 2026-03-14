@@ -3,6 +3,14 @@ const API_ENDPOINTS = {
 	USER: {
 		USER_ME: "/user",
 	},
+	FILE: {
+		IMAGE: "/api/v1/files",
+		PDF: "/api/v1/files/pdf",
+	},
+	COLLAGE: {
+		GETALL: "/college",
+		CREATE: "college",
+	},
 };
 
-export const { LOGIN, USER } = API_ENDPOINTS;
+export const { LOGIN, USER, FILE, COLLAGE } = API_ENDPOINTS;

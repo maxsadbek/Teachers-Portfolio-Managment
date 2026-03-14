@@ -9,6 +9,7 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-r
 import { useState } from "react";
 
 import { Button } from "@/ui/button";
+import { Skeleton } from "@/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui/table";
 
 export type { ColumnDef };
@@ -19,26 +20,50 @@ type DataTableProps<T> = {
 	columns: ColumnDef<T>[];
 	data: T[];
 	onRowClick?: (row: T) => void;
+	isLoading?: boolean;
+	// server-side pagination
+	page?: number;
+	totalPage?: number;
+	onPageChange?: (page: number) => void;
 };
 
-export function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
+export function DataTable<T>({
+	columns,
+	data,
+	onRowClick,
+	isLoading,
+	page,
+	totalPage,
+	onPageChange,
+}: DataTableProps<T>) {
 	const [pageIndex, setPageIndex] = useState(0);
+
+	const isServerPagination = page !== undefined && totalPage !== undefined && onPageChange !== undefined;
+
+	const currentPage = isServerPagination ? page : pageIndex;
+	const displayTotalPages = isServerPagination ? totalPage : 0;
 
 	const table = useReactTable({
 		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
-		state: { pagination: { pageIndex, pageSize: PAGE_SIZE } },
+		state: { pagination: { pageIndex: currentPage, pageSize: PAGE_SIZE } },
 		onPaginationChange: (updater) => {
-			const next = typeof updater === "function" ? updater({ pageIndex, pageSize: PAGE_SIZE }) : updater;
-			setPageIndex(next.pageIndex);
+			const next = typeof updater === "function" ? updater({ pageIndex: currentPage, pageSize: PAGE_SIZE }) : updater;
+			if (isServerPagination) {
+				onPageChange(next.pageIndex);
+			} else {
+				setPageIndex(next.pageIndex);
+			}
 		},
-		manualPagination: false,
+		manualPagination: isServerPagination,
+		pageCount: isServerPagination ? totalPage : undefined,
 	});
 
-	const totalPages = table.getPageCount();
-	const showPagination = data.length > PAGE_SIZE;
+	const clientTotalPages = table.getPageCount();
+	const showPagination = isServerPagination ? totalPage > 1 : data.length > PAGE_SIZE;
+	const pages = isServerPagination ? displayTotalPages : clientTotalPages;
 
 	return (
 		<div className="flex flex-col gap-3">
@@ -56,13 +81,23 @@ export function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
 						))}
 					</TableHeader>
 					<TableBody>
-						{table.getRowModel().rows.length ? (
+						{isLoading ? (
+							Array.from({ length: PAGE_SIZE }).map((_, i) => (
+								<TableRow key={i}>
+									{columns.map((_, j) => (
+										<TableCell key={j}>
+											<Skeleton className="h-4 w-full" />
+										</TableCell>
+									))}
+								</TableRow>
+							))
+						) : table.getRowModel().rows.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow
 									key={row.id}
 									data-state={row.getIsSelected() && "selected"}
 									onClick={() => onRowClick?.(row.original)}
-									className={onRowClick ? "cursor-pointer hover:bg-muted/10" : ""}
+									className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
@@ -83,7 +118,7 @@ export function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
 			{showPagination && (
 				<div className="flex items-center justify-between px-1">
 					<span className="text-[13px] text-muted-foreground">
-						Jami {data.length} ta | {pageIndex + 1} / {totalPages} sahifa
+						{currentPage + 1} / {pages} sahifa
 					</span>
 
 					<div className="flex items-center gap-1">
@@ -91,7 +126,7 @@ export function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
 							variant="outline"
 							size="icon"
 							className="h-8 w-8"
-							onClick={() => setPageIndex(0)}
+							onClick={() => table.firstPage()}
 							disabled={!table.getCanPreviousPage()}
 						>
 							<ChevronsLeft className="size-4" />
@@ -100,19 +135,19 @@ export function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
 							variant="outline"
 							size="icon"
 							className="h-8 w-8"
-							onClick={() => setPageIndex((p) => p - 1)}
+							onClick={() => table.previousPage()}
 							disabled={!table.getCanPreviousPage()}
 						>
 							<ChevronLeft className="size-4" />
 						</Button>
 
-						{Array.from({ length: totalPages }, (_, i) => i).map((i) => (
+						{Array.from({ length: pages }, (_, i) => i).map((i) => (
 							<Button
 								key={i}
-								variant={i === pageIndex ? "default" : "outline"}
+								variant={i === currentPage ? "default" : "outline"}
 								size="icon"
 								className="h-8 w-8 text-[13px]"
-								onClick={() => setPageIndex(i)}
+								onClick={() => table.setPageIndex(i)}
 							>
 								{i + 1}
 							</Button>
@@ -122,7 +157,7 @@ export function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
 							variant="outline"
 							size="icon"
 							className="h-8 w-8"
-							onClick={() => setPageIndex((p) => p + 1)}
+							onClick={() => table.nextPage()}
 							disabled={!table.getCanNextPage()}
 						>
 							<ChevronRight className="size-4" />
@@ -131,7 +166,7 @@ export function DataTable<T>({ columns, data, onRowClick }: DataTableProps<T>) {
 							variant="outline"
 							size="icon"
 							className="h-8 w-8"
-							onClick={() => setPageIndex(totalPages - 1)}
+							onClick={() => table.lastPage()}
 							disabled={!table.getCanNextPage()}
 						>
 							<ChevronsRight className="size-4" />
