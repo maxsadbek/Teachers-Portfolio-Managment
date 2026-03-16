@@ -15,6 +15,8 @@ import { useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router";
 import { Controller, useForm } from "react-hook-form";
 import type { Collage } from "@/features/collage/collage.type";
+import { collageService } from "@/features/collage/collage.service";
+import { toast } from "sonner";
 
 type FacultyFormValues = {
 	name: string;
@@ -82,7 +84,7 @@ function createColumns(
 export default function Faculties() {
 	const [searchParams, setSearchParams] = useSearchParams();
 
-	const page = Number(searchParams.get("page") ?? 0);
+	const page = Number(searchParams.get("page") ?? "0");
 	const search = searchParams.get("name") ?? "";
 
 	const setPage = (newPage: number) => {
@@ -111,13 +113,12 @@ export default function Faculties() {
 	const { open, close } = useModalActions();
 	const isEdit = editData !== null;
 
-	const { mutate: createCollage, isPending } = useCreateCollage();
-	const { data: collageResponse, isLoading } = useCollage();
-	console.log(collageResponse);
+	const { mutate: createCollage, isPending: isCreating } = useCreateCollage();
+	const { data: response, isLoading } = useCollage();
 
-	const collages = collageResponse?.data ?? [];
-	const totalElements = collageResponse?.data?.totalElements ?? 0;
-	const totalPage = collageResponse?.data?.totalPages ?? 0;
+	const faculties = response?.data ?? [];
+	const totalElements = response?.totalElements ?? 0;
+	const totalPages = response?.totalPages ?? 0;
 
 	const {
 		register,
@@ -132,16 +133,16 @@ export default function Faculties() {
 	useEffect(() => {
 		if (editData) {
 			reset({ name: editData.name, image: null });
+		} else {
+			reset({ name: "", image: null });
 		}
 	}, [editData, reset]);
-
-	const filtered = useMemo(() => collages, [collages]);
 
 	const columns = useMemo(
 		() =>
 			createColumns(
 				(row) => open(row),
-				(row) => console.log("O'chirish:", row),
+				(row) => handleDelete(row.id),
 				page,
 			),
 		[open, page],
@@ -152,17 +153,39 @@ export default function Faculties() {
 		close();
 	};
 
-	const onSubmit = (values: FacultyFormValues) => {
-		if (isEdit) {
-			console.log("Tahrirlash hali ulangani yo'q:", { id: editData.id, ...values });
+const onSubmit = async (values: FacultyFormValues) => {
+	if (isEdit && editData) {
+		try {
+			await collageService.edit(editData.id, {
+				name: values.name,
+				image: values.image,
+			});
+
+			toast.success("Fakultet yangilandi");
 			handleClose();
-			return;
+			window.location.reload();
+		} catch (error) {
+			toast.error("Yangilashda xatolik");
 		}
 
-		if (!values.image) return;
+		return;
+	}
 
-		createCollage({ name: values.name, image: values.image }, { onSuccess: handleClose });
-	};
+	if (!values.image) return;
+
+	createCollage({ name: values.name, image: values.image }, { onSuccess: handleClose });
+};
+
+const handleDelete = async (id: number) => {
+	try {
+		await collageService.remove(id);
+		toast.success("Fakultet o'chirildi");
+		window.location.reload();
+	} catch (err) {
+		toast.error("Fakultet o'chirishda xatolik yuz berdi");
+		console.error(err);
+	}
+};
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -177,10 +200,10 @@ export default function Faculties() {
 
 			<DataTable
 				columns={columns}
-				data={filtered}
+				data={faculties}
 				isLoading={isLoading}
 				page={page}
-				totalPage={totalPage}
+				totalPage={totalPages}
 				onPageChange={setPage}
 			/>
 
@@ -208,11 +231,11 @@ export default function Faculties() {
 					</div>
 
 					<div className="flex justify-end gap-2">
-						<Button type="button" variant="outline" onClick={handleClose} disabled={isPending}>
+						<Button type="button" variant="outline" onClick={handleClose} disabled={isCreating}>
 							Bekor qilish
 						</Button>
-						<Button type="submit" disabled={isPending}>
-							{isPending ? "Yuklanmoqda..." : isEdit ? "Saqlash" : "Qo'shish"}
+						<Button type="submit" disabled={isCreating}>
+							{isCreating ? "Yuklanmoqda..." : isEdit ? "Saqlash" : "Qo'shish"}
 						</Button>
 					</div>
 				</form>
