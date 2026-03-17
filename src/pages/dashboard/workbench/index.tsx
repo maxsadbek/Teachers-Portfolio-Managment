@@ -33,15 +33,15 @@ const ilmiyFaoliyat = [
 ];
 
 const talimDarajalari = [
-	{ label: "Fan doktorlari (DSc)", value: 23, icon: "mdi:medal", color: "text-amber-500", bg: "bg-amber-50" },
+	{ label: "Fan doktorlari (DSc)", value: 23, icon: "mdi:medal", color: "text-amber-500", bg: "border-amber-50" },
 	{
 		label: "Falsafa doktorlari (PhD)",
 		value: 64,
 		icon: "mdi:school-outline",
 		color: "text-blue-600",
-		bg: "bg-blue-50",
+		bg: "border-blue-50",
 	},
-	{ label: "Magistrlar", value: 161, icon: "mdi:book-education", color: "text-emerald-600", bg: "bg-emerald-50" },
+	{ label: "Magistrlar", value: 161, icon: "mdi:book-education", color: "text-emerald-600", bg: "border-emerald-50" },
 ];
 
 const yillikFaoliyat = [
@@ -260,7 +260,7 @@ export default function Workbench() {
 				<span className="text-[14px] font-semibold">Ta'lim Darajalari</span>
 				<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 					{talimDarajalari.map((stat) => (
-						<Card key={stat.label} className={`${stat.bg} border-0 py-0`}>
+						<Card key={stat.label} className={` border-1 shadow py-0`}>
 							<CardContent className="flex items-center gap-4 px-5 py-4">
 								<Icon icon={stat.icon} size={32} className={stat.color} />
 								<div className="flex flex-col gap-0.5">
