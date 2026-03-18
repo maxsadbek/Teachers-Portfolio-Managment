@@ -11,6 +11,10 @@ const API_ENDPOINTS = {
 		GETALL: "/college",
 		CREATE: "college",
 	},
+	DEPARTMENTS: {
+		CREATE: "/department",
+		PAGE: "/department/page"
+	}
 };
 
-export const { LOGIN, USER, FILE, COLLAGE } = API_ENDPOINTS;
+export const { LOGIN, USER, FILE, COLLAGE, DEPARTMENTS } = API_ENDPOINTS;
