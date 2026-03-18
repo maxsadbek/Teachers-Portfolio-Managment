@@ -38,3 +38,15 @@ export interface DepartmentPageResponse {
   message: string,
   data: DepartmentPage;
 }
+
+export interface DepartmentListResponse {
+  seccess: boolean,
+  message: string,
+  data: Department[]
+}
+
+export interface UpdateDepartmentDTO {
+  name: string,
+  imgUrl?: string,
+  collegeId: number
+}
