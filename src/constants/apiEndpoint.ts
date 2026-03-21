@@ -23,8 +23,7 @@ const API_ENDPOINTS = {
 		CREATE: "/lavozim",
 		UPDATE: "/lavozim",
 		DELETE: "/lavozim",
-		STATISTICS: "/lavozim/get-lavozim-statistiks",
 	},
 };
 
-export const { LOGIN, USER, FILE, COLLAGE, DEPARTMENTS } = API_ENDPOINTS;
+export const { LOGIN, USER, FILE, COLLAGE, DEPARTMENTS, POSITION } = API_ENDPOINTS;
