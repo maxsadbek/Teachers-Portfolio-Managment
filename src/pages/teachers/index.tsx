@@ -5,7 +5,7 @@ import { Button } from "@/ui/button";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useMemo } from "react";
 import { useNavigate } from "react-router";
-import { TEACHERS, type Teacher } from "./data";
+import type { Teacher } from "./data";
 import { useTeacherSheetActions } from "@/store/teacherSheet";
 import { TeacherSheet } from "./teacher-sheet";
 
@@ -89,9 +89,7 @@ export default function Teachers() {
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-2">
 					<span className="text-[14px] font-semibold text-foreground">O'qituvchilar soni:</span>
-					<span className="bg-primary/10 text-primary text-[13px] font-bold px-2.5 py-0.5 rounded-full">
-						{TEACHERS.length}
-					</span>
+					<span className="bg-primary/10 text-primary text-[13px] font-bold px-2.5 py-0.5 rounded-full">0</span>
 				</div>
 				<Button size="sm" className="h-9 gap-1.5" onClick={() => open()}>
 					<Plus className="size-4" />
@@ -99,7 +97,7 @@ export default function Teachers() {
 				</Button>
 			</div>
 
-			<DataTable columns={columns} data={TEACHERS} onRowClick={(row) => navigate(`/teachers/${row.id}`)} />
+			<DataTable columns={columns} data={[]} onRowClick={(row) => navigate(`/teachers/${row.id}`)} />
 
 			<TeacherSheet />
 		</div>
