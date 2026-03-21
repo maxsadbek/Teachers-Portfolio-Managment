@@ -1,6 +1,6 @@
 export interface CreateDepartmentDTO{
   name:string,
-  imgUrl: string,
+  imgUrl: string | null,
   collegeId: number
 }
 
