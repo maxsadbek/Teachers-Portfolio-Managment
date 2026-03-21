@@ -337,7 +337,7 @@ export default function Workbench() {
 				</Card>
 
 				{/* Oxirgi faoliyat */}
-				<Card className="border-0 bg-[#3676F0	] dark:bg-[#141414] border-[#3676F0] dark:border-2">
+				<Card className="border-0 bg-[#3676F0] text-white dark:bg-[#141414] border-[#3676F0] dark:border-2">
 					<CardContent className="flex flex-col gap-2 px-6 py-5">
 						<span className="text-[13px] font-medium text-white/70">Oxirgi Faoliyat</span>
 						<span className="text-[18px] font-bold text-white">{oxirgiFailiyat.ism}</span>

@@ -50,3 +50,14 @@ export interface UpdateDepartmentDTO {
   imgUrl?: string,
   collegeId: number
 }
+
+export interface DepartmentUpdateResponse {
+  success: boolean,
+  message: string,
+  data: string
+}
+
+export interface DepartmentDeleteResponse{
+  success: boolean;
+  message: string
+}

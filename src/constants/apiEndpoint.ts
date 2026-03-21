@@ -15,8 +15,15 @@ const API_ENDPOINTS = {
 		CREATE: "/department",
 		PAGE: "/department/page",
 		LIST: "/department/list",
-		EDIT:"/department"
-	}
+		EDIT: "/department",
+	},
+	POSITION: {
+		GET_ALL: "/lavozim",
+		CREATE: "/lavozim",
+		UPDATE: "/lavozim",
+		DELETE: "/lavozim",
+		STATISTICS: "/lavozim/get-lavozim-statistiks",
+	},
 };
 
 export const { LOGIN, USER, FILE, COLLAGE, DEPARTMENTS } = API_ENDPOINTS;
