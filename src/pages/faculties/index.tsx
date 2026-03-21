@@ -25,14 +25,15 @@ type FacultyFormValues = {
 
 function createColumns(
 	onEdit: (row: Collage) => void,
-	onDelete: (row: Collage) => void,
-	page: number,
+	onDelete: (id: number) => void,
+	pageIndex: number,
+	pageSize: number,
 ): ColumnDef<Collage>[] {
 	return [
 		{
 			accessorKey: "id",
 			header: "#",
-			cell: ({ row }) => <span className="text-muted-foreground">{page * 10 + row.index + 1}</span>,
+			cell: ({ row }: any) => <span className="text-muted-foreground">{pageIndex * pageSize + row.index + 1}</span>,
 		},
 		{
 			accessorKey: "imgUrl",
@@ -43,7 +44,7 @@ function createColumns(
 					<img src={imgUrl} alt={row.original.name} className="w-9 h-9 rounded-full object-cover" />
 				) : (
 					<div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-[13px]">
-						{row.original.name.charAt(0).toUpperCase()}
+						{row.original.name?.charAt(0).toUpperCase() || "F"}
 					</div>
 				);
 			},
@@ -51,25 +52,25 @@ function createColumns(
 		{
 			accessorKey: "name",
 			header: "Fakultet",
-			cell: ({ row }) => <span className="font-medium">{row.getValue("name")}</span>,
+			cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
 		},
 		{
 			id: "actions",
 			header: () => <div className="text-center">Amallar</div>,
 			cell: ({ row }) => (
-				<div className="flex items-center justify-center gap-2">
+				<div className="flex justify-center items-center gap-2">
 					<button
 						type="button"
 						onClick={() => onEdit(row.original)}
-						className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+						className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors"
 					>
 						<Pencil className="size-3" />
 						Tahrirlash
 					</button>
-					<ConfirmPopover onConfirm={() => onDelete(row.original)}>
+					<ConfirmPopover onConfirm={() => onDelete(row.original.id)}>
 						<button
 							type="button"
-							className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+							className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 hover:bg-red-100 text-[12px] font-semibold px-2.5 py-1 rounded-md transition-colors"
 						>
 							<Trash2 className="size-3" />
 							O'chirish
@@ -83,42 +84,20 @@ function createColumns(
 
 export default function Faculties() {
 	const [searchParams, setSearchParams] = useSearchParams();
-
 	const page = Number(searchParams.get("page") ?? "0");
+	const size = 10;
 	const search = searchParams.get("name") ?? "";
-
-	const setPage = (newPage: number) => {
-		setSearchParams((prev) => {
-			const next = new URLSearchParams(prev);
-			next.set("page", String(newPage));
-			return next;
-		});
-	};
-
-	const setSearch = (value: string) => {
-		setSearchParams((prev) => {
-			const next = new URLSearchParams(prev);
-			if (value) {
-				next.set("name", value);
-			} else {
-				next.delete("name");
-			}
-			next.set("page", "0");
-			return next;
-		});
-	};
 
 	const isOpen = useModalIsOpen();
 	const editData = useModalEditData() as Collage | null;
 	const { open, close } = useModalActions();
-	const isEdit = editData !== null;
+	const isEdit = !!editData;
 
 	const { mutate: createCollage, isPending: isCreating } = useCreateCollage();
-	const { data: response, isLoading } = useCollage();
+	const { data: response, isLoading, refetch } = useCollage();
 
 	const faculties = response?.data ?? [];
-	const totalElements = response?.totalElements ?? 0;
-	const totalPages = response?.totalPages ?? 0;
+	const totalElements = response?.data?.length || 0;
 
 	const {
 		register,
@@ -138,14 +117,25 @@ export default function Faculties() {
 		}
 	}, [editData, reset]);
 
+	const handleDelete = async (id: number) => {
+		try {
+			await collageService.remove(id);
+			toast.success("Fakultet o'chirildi");
+			refetch();
+		} catch (err) {
+			toast.error("O'chirishda xatolik");
+		}
+	};
+
 	const columns = useMemo(
 		() =>
 			createColumns(
 				(row) => open(row),
-				(row) => handleDelete(row.id),
+				(id) => handleDelete(id),
 				page,
+				size,
 			),
-		[open, page],
+		[open, page, size],
 	);
 
 	const handleClose = () => {
@@ -153,39 +143,27 @@ export default function Faculties() {
 		close();
 	};
 
-const onSubmit = async (values: FacultyFormValues) => {
-	if (isEdit && editData) {
+	const onSubmit = async (values: FacultyFormValues) => {
 		try {
-			await collageService.edit(editData.id, {
-				name: values.name,
-				image: values.image,
-			});
-
-			toast.success("Fakultet yangilandi");
+			if (isEdit && editData) {
+				await collageService.edit(editData.id, {
+					name: values.name,
+					image: values.image,
+				} as any);
+				toast.success("Fakultet yangilandi");
+			} else {
+				if (!values.image) {
+					toast.error("Rasm yuklash shart");
+					return;
+				}
+				createCollage({ name: values.name, image: values.image });
+			}
 			handleClose();
-			window.location.reload();
+			refetch();
 		} catch (error) {
-			toast.error("Yangilashda xatolik");
+			toast.error("Xatolik yuz berdi");
 		}
-
-		return;
-	}
-
-	if (!values.image) return;
-
-	createCollage({ name: values.name, image: values.image }, { onSuccess: handleClose });
-};
-
-const handleDelete = async (id: number) => {
-	try {
-		await collageService.remove(id);
-		toast.success("Fakultet o'chirildi");
-		window.location.reload();
-	} catch (err) {
-		toast.error("Fakultet o'chirishda xatolik yuz berdi");
-		console.error(err);
-	}
-};
+	};
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -193,19 +171,12 @@ const handleDelete = async (id: number) => {
 				countLabel="Fakultetlar soni"
 				count={totalElements}
 				searchValue={search}
-				onSearchChange={setSearch}
+				onSearchChange={(val) => setSearchParams({ name: val, page: "0" })}
 				onAdd={() => open()}
 				addLabel="Fakultet qo'shish"
 			/>
 
-			<DataTable
-				columns={columns}
-				data={faculties}
-				isLoading={isLoading}
-				page={page}
-				totalPage={totalPages}
-				onPageChange={setPage}
-			/>
+			<DataTable columns={columns} data={faculties} isLoading={isLoading} />
 
 			<Modal open={isOpen} onClose={handleClose} title={isEdit ? "Fakultet tahrirlash" : "Fakultet qo'shish"}>
 				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-2">
@@ -214,10 +185,10 @@ const handleDelete = async (id: number) => {
 						<Controller
 							name="image"
 							control={control}
-							rules={{ required: isEdit ? false : "Rasm tanlanishi shart" }}
+							rules={{ required: !isEdit && "Rasm tanlanishi shart" }}
 							render={({ field }) => <FileInput type="image" value={field.value} onChange={field.onChange} />}
 						/>
-						{errors.image && <span className="text-[12px] text-red-500">{errors.image.message}</span>}
+						{errors.image && <span className="text-xs text-red-500">{errors.image.message}</span>}
 					</div>
 
 					<div className="flex flex-col gap-2">
@@ -227,15 +198,15 @@ const handleDelete = async (id: number) => {
 							placeholder="Masalan: Davolash fakulteti"
 							{...register("name", { required: "Fakultet nomi kiritilishi shart" })}
 						/>
-						{errors.name && <span className="text-[12px] text-red-500">{errors.name.message}</span>}
+						{errors.name && <span className="text-xs text-red-500">{errors.name.message}</span>}
 					</div>
 
 					<div className="flex justify-end gap-2">
-						<Button type="button" variant="outline" onClick={handleClose} disabled={isCreating}>
+						<Button type="button" variant="outline" onClick={handleClose}>
 							Bekor qilish
 						</Button>
 						<Button type="submit" disabled={isCreating}>
-							{isCreating ? "Yuklanmoqda..." : isEdit ? "Saqlash" : "Qo'shish"}
+							{isEdit ? "Saqlash" : "Qo'shish"}
 						</Button>
 					</div>
 				</form>

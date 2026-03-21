@@ -9,7 +9,8 @@ const API_ENDPOINTS = {
 	},
 	COLLAGE: {
 		GETALL: "/college",
-		CREATE: "college",
+		CREATE: "/college",
+		EDIT: "/college"
 	},
 	DEPARTMENTS: {
 		CREATE: "/department",

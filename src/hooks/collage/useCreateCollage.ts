@@ -8,25 +8,20 @@ interface CreateCollageInput {
 	name: string;
 	image: File;
 }
-
 export function useCreateCollage() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (input: CreateCollageInput) => {
 			const imgUrl = await fileService.uploadImage(input.image);
-			const collageData: CreateCollageDTO = {
-				name: input.name,
-				imgUrl,
-			};
-
-			return collageService.create(collageData);
+			return collageService.create({ name: input.name, imgUrl });
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["collages"] });
+			queryClient.invalidateQueries({ queryKey: ["department"] });
 			toast.success("Fakultet muvaffaqiyatli qo'shildi");
 		},
-		onError: (error: { message: string }) => {
-			toast.success(error.message || "Fakultet qo'shishda xatolik");
+		onError: (error: any) => {
+			toast.error(error.message || "Fakultet qo'shishda xatolik"); 
 		},
 	});
 }

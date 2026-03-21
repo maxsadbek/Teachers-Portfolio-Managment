@@ -13,10 +13,13 @@ import { Pencil, Trash2, Loader2 } from "lucide-react";
 import { useSearchParams } from "react-router";
 import { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
+
+// Hooklar importi
 import { useDepartmentPage } from "./../../hooks/departments/useDepartmentPage";
 import { useCreateDepartment } from "../../hooks/departments/useCreateDepartment";
 import { useUpdateDepartment } from "../../hooks/departments/useUpdateDepartment";
 import { useDeleteDepartment } from "../../hooks/departments/useDeleteDepartment";
+import { useCollage } from "../../hooks/collage/useCollage"; // Fakultetlarni olish uchun
 
 type DepartmentFormValues = {
 	name: string;
@@ -84,11 +87,25 @@ export default function Departments() {
 	const { open, close } = useModalActions();
 	const editData = useModalEditData() as any;
 	const isEdit = !!editData;
+
+	// Ma'lumotlarni olish
 	const { data: pageData, isLoading } = useDepartmentPage({ page: page - 1, size, name: search });
+	const { data: collageData } = useCollage(); // Fakultetlar ro'yxati API dan keladi
+
+	// Amallar uchun mutatsiyalar
 	const { mutate: createDepartment, isPending: isCreating } = useCreateDepartment();
 	const { mutate: updateDepartment, isPending: isUpdating } = useUpdateDepartment();
 	const { mutate: deleteDepartment, isPending: isDeleting } = useDeleteDepartment();
-	const faculties = [{ value: "1", label: "TATU" }];
+
+	// Fakultetlarni Select komponenti uchun formatlash
+	const faculties = useMemo(() => {
+		return (
+			collageData?.data.map((item) => ({
+				value: String(item.id),
+				label: item.name,
+			})) || []
+		);
+	}, [collageData]);
 
 	const {
 		register,
@@ -128,7 +145,7 @@ export default function Departments() {
 		};
 
 		if (isEdit) {
-			updateDepartment({ id: editData.id, ...payload }, { onSuccess: handleClose });
+			updateDepartment({ id: editData.id, ...payload, image: values.image }, { onSuccess: handleClose });
 		} else {
 			createDepartment(payload, { onSuccess: handleClose });
 		}
@@ -186,7 +203,7 @@ export default function Departments() {
 							rules={{ required: "Fakultet tanlanishi shart" }}
 							render={({ field }) => (
 								<SearchableSelect
-									options={faculties}
+									options={faculties} 
 									value={field.value}
 									onChange={field.onChange}
 									placeholder="Fakultetni tanlang"
