@@ -40,10 +40,10 @@ export interface DepartmentPageResponse {
 }
 
 export interface DepartmentListResponse {
-  seccess: boolean,
-  message: string,
-  data: Department[]
-}
+		success: boolean;
+		message: string;
+		data: Department[];
+	}
 
 export interface UpdateDepartmentDTO {
   name: string,

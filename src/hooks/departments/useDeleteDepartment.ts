@@ -1,6 +1,5 @@
 import { departmentService } from "../../features/departments/departments.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { message } from "antd";
 import { toast } from "sonner";
 
 export function useDeleteDepartment() {

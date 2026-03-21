@@ -1,21 +1,30 @@
 import { apiClient } from "@/api/client";
-import { POSITION } from "@/constants/apiEndpoint";
-import { PositionDTO, PositionResponse } from "../positions/position.type";
+import { DEPARTMENTS } from "@/constants/apiEndpoint";
+import {
+	CreateDepartmentDTO,
+	DepartmentCreateResponse,
+	DepartmentPageParams,
+	DepartmentPageResponse,
+	DepartmentListResponse,
+	UpdateDepartmentDTO,
+	DepartmentUpdateResponse,
+	DepartmentDeleteResponse,
+} from "./departments.type";
 
-export const PositionService = {
-	getWithStatistics() {
-		return apiClient.get<PositionResponse<any>>(`${POSITION.GET_ALL}/get-lavozim-statistiks`);
+export const departmentService = {
+	getPage(params: DepartmentPageParams) {
+		return apiClient.get<DepartmentPageResponse>(DEPARTMENTS.PAGE, { params });
 	},
-	getAll() {
-		return apiClient.get<PositionResponse<any>>(POSITION.GET_ALL);
+	getList() {
+		return apiClient.get<DepartmentListResponse>(DEPARTMENTS.LIST);
 	},
-	create(data: PositionDTO) {
-		return apiClient.post<PositionResponse<any>>(POSITION.CREATE, data);
+	create(data: CreateDepartmentDTO) {
+		return apiClient.post<DepartmentCreateResponse>(DEPARTMENTS.CREATE, data);
 	},
-	update(id: number, data: PositionDTO) {
-		return apiClient.put<PositionResponse<any>>(`${POSITION.UPDATE}/${id}`, data);
+	update(id: number, data: UpdateDepartmentDTO) {
+		return apiClient.put<DepartmentUpdateResponse>(`${DEPARTMENTS.EDIT}/${id}`, data);
 	},
 	remove(id: number) {
-		return apiClient.delete<PositionResponse<any>>(`${POSITION.DELETE}/${id}`);
+		return apiClient.delete<DepartmentDeleteResponse>(`${DEPARTMENTS.EDIT}/${id}`);
 	},
 };
