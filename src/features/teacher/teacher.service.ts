@@ -11,7 +11,9 @@ import {
 
 export const TeacherService = {
 	getAll(page = 0, size = 10) {
-		return apiClient.get<TeacherResponse>(TEACHER.GET_ONE, { params: { page, size } });
+		return apiClient.get<SearchTeacherResponse>(TEACHER.SEARCH, {
+			params: { query: "", page, size },
+		});
 	},
 
 	getById(id: number) {

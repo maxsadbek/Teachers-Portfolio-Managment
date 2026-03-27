@@ -5,9 +5,12 @@ import { Button } from "@/ui/button";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useMemo } from "react";
 import { useNavigate } from "react-router";
-import type { Teacher } from "./data";
+import type { Teacher } from "../../features/teacher/teacher.type";
 import { useTeacherSheetActions } from "@/store/teacherSheet";
 import { TeacherSheet } from "./teacher-sheet";
+import { useTeacherList } from "../../hooks/teachers/useTeacherList";
+import { useTeacherDelete } from "../../hooks/teachers/useTeacherDelete";
+import { toast } from "sonner";
 
 function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) => void): ColumnDef<Teacher>[] {
 	return [
@@ -17,28 +20,28 @@ function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) 
 			cell: ({ row }) => <span className="text-muted-foreground">{row.getValue("id")}</span>,
 		},
 		{
-			accessorKey: "name",
+			accessorKey: "fullName",
 			header: "F.I.Sh.",
 			cell: ({ row }) => (
 				<div className="flex items-center gap-2.5">
 					<div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-[13px] shrink-0">
-						{(row.getValue("name") as string).charAt(0).toUpperCase()}
+						{(row.getValue("fullName") as string).charAt(0).toUpperCase()}
 					</div>
-					<span className="font-medium text-[13px]">{row.getValue("name")}</span>
+					<span className="font-medium text-[13px]">{row.getValue("fullName")}</span>
 				</div>
 			),
 		},
 		{
-			accessorKey: "phone",
+			accessorKey: "phoneNumber",
 			header: "Telefon",
-			cell: ({ row }) => <span className="text-muted-foreground text-[13px]">{row.getValue("phone")}</span>,
+			cell: ({ row }) => <span className="text-muted-foreground text-[13px]">{row.getValue("phoneNumber")}</span>,
 		},
 		{
-			accessorKey: "position",
+			accessorKey: "lavozim",
 			header: "Lavozim",
 			cell: ({ row }) => (
 				<span className="inline-flex items-center bg-blue-50 text-blue-700 text-[12px] font-medium px-2 py-0.5 rounded-full">
-					{row.getValue("position")}
+					{row.getValue("lavozim")}
 				</span>
 			),
 		},
@@ -73,23 +76,32 @@ function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) 
 export default function Teachers() {
 	const { open } = useTeacherSheetActions();
 	const navigate = useNavigate();
+	const { data, totalElements, loading, refetch } = useTeacherList();
+	const { remove, loading: deleteLoading } = useTeacherDelete();
+	const handleDelete = async (row: Teacher) => {
+		try {
+			await remove(row.id);
+			toast.success("O'qituvchi o'chirildi");
+			refetch();
+		} catch {
+			toast.error("O'chirishda xatolik yuz berdi");
+		}
+	};
 
-	const columns = useMemo(
-		() =>
-			createColumns(
-				(row) => open(row),
-				(row) => console.log("O'chirish:", row),
-			),
-		[open],
-	);
+	const handleEdit = (row: Teacher) => {
+		open(row);
+	};
+
+	const columns = useMemo(() => createColumns(handleEdit, handleDelete), [open, remove]);
 
 	return (
 		<div className="flex flex-col gap-4">
-			{/* Toolbar */}
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-2">
 					<span className="text-[14px] font-semibold text-foreground">O'qituvchilar soni:</span>
-					<span className="bg-primary/10 text-primary text-[13px] font-bold px-2.5 py-0.5 rounded-full">0</span>
+					<span className="bg-primary/10 text-primary text-[13px] font-bold px-2.5 py-0.5 rounded-full">
+						{totalElements}
+					</span>
 				</div>
 				<Button size="sm" className="h-9 gap-1.5" onClick={() => open()}>
 					<Plus className="size-4" />
@@ -97,9 +109,14 @@ export default function Teachers() {
 				</Button>
 			</div>
 
-			<DataTable columns={columns} data={[]} onRowClick={(row) => navigate(`/teachers/${row.id}`)} />
+			<DataTable
+				columns={columns}
+				data={data}
+				isLoading={loading || deleteLoading}
+				onRowClick={(row) => navigate(`/teachers/${row.id}`)}
+			/>
 
-			<TeacherSheet />
+			<TeacherSheet onSuccess={refetch} />
 		</div>
 	);
 }

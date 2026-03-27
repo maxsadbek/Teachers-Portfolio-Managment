@@ -26,6 +26,7 @@ const API_ENDPOINTS = {
 	},
 	TEACHER: {
 		CREATE: "/teacher/saveUser",
+		GET_ALL: "/teacher/page",
 		GET_ONE: "/teacher",
 		DELETE: "/teacher",
 		UPDATE_PROFILE: "/teacher/update-profile",
