@@ -10,7 +10,7 @@ const API_ENDPOINTS = {
 	COLLAGE: {
 		GETALL: "/college",
 		CREATE: "/college",
-		EDIT: "/college"
+		EDIT: "/college",
 	},
 	DEPARTMENTS: {
 		CREATE: "/department",
@@ -23,6 +23,14 @@ const API_ENDPOINTS = {
 		CREATE: "/lavozim",
 		UPDATE: "/lavozim",
 		DELETE: "/lavozim",
+	},
+	TEACHER: {
+		CREATE: "/teacher/saveUser",
+		GET_ONE: "/teacher",
+		DELETE: "/teacher",
+		UPDATE_PROFILE: "/teacher/update-profile",
+		EDIT: "/teacher/edit",
+		SEARCH: "/teacher/search",
 	},
 };
 
