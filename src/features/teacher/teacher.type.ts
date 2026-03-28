@@ -27,23 +27,24 @@ export interface TeacherResponse {
 }
 
 export interface CreateTeacherDTO {
-		fullName: string;
-		phoneNumber: string;
-		email: string;
-		biography: string;
-		input: any | null;
-		age: number;
-		orcId?: string;
-		scopusId?: string;
-		scienceId?: string;
-		researcherId?: string;
-		gender: boolean;
-		imageUrl?: string;
-		fileUrl?: string;
-		profession?: string;
-		lavozmId: number;
-		departmentId: number;
-	}
+	fullName: string;
+	phoneNumber: string;
+	email: string;
+	biography: string;
+	input: any | null;
+	age: number;
+	password: string; 
+	orcId?: string;
+	scopusId?: string;
+	scienceId?: string;
+	researcherId?: string;
+	gender: boolean;
+	imageUrl?: string;
+	fileUrl?: string;
+	profession?: string;
+	lavozmId: number;
+	departmentId: number;
+}
 
 export interface UpdateTeacherProfileDTO {
 	id: number;

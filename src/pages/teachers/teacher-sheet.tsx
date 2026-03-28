@@ -11,6 +11,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { DEPARTMENTS, FACULTIES, POSITIONS, type TeacherFormValues } from "./data";
 import { useTeacherSheetActions, useTeacherSheetEditData, useTeacherSheetIsOpen } from "@/store/teacherSheet";
+import { useTeacherCreate } from "../../hooks/teachers/useTeacherCreate";
+import { toast } from "sonner";
 
 // ─── Phone mask ───────────────────────────────────────────────────────────────
 
@@ -31,6 +33,10 @@ function formatPhone(digits: string): string {
 	return result;
 }
 
+interface TeacherSheetProps {
+	onSuccess?: () => void;
+}
+
 function extractDigits(formatted: string): string {
 	const all = formatted.replace(/\D/g, "");
 	return all.startsWith("998") ? all.slice(3) : all;
@@ -38,14 +44,14 @@ function extractDigits(formatted: string): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function TeacherSheet() {
+export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 	const isOpen = useTeacherSheetIsOpen();
 	const editData = useTeacherSheetEditData();
 	const { close } = useTeacherSheetActions();
 	const isEdit = editData !== null;
-
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirm, setShowConfirm] = useState(false);
+	const { create, loading: createLoading } = useTeacherCreate();
 
 	const {
 		register,
@@ -119,23 +125,33 @@ export function TeacherSheet() {
 		close();
 	};
 
-	const onSubmit = (values: TeacherFormValues) => {
-		const result = {
-			fullName: values.fullName,
-			phone: values.phone,
-			faculty: FACULTIES.find((f) => f.value === values.facultyId)?.label ?? "",
-			department: DEPARTMENTS.find((d) => d.value === values.departmentId)?.label ?? "",
-			position: POSITIONS.find((p) => p.value === values.positionId)?.label ?? "",
-			image: values.image,
-			password: values.password,
-		};
+	const onSubmit = async (values: TeacherFormValues) => {
+		try {
+			const digist = extractDigits(values.phone);
+			const phoneNumber = `998${digist}`;
 
-		if (isEdit) {
-			console.log("O'qituvchi tahrirlandi:", { id: editData.id, ...result });
-		} else {
-			console.log("Yangi o'qituvchi:", result);
+			if (isEdit) {
+				console.log("edit:", editData?.id);
+			} else {
+				await create({
+					fullName: values.fullName,
+					phoneNumber: phoneNumber,
+					email: "",
+					biography: "",
+					input: null,
+					age: 0,
+					gender: true,
+					password: values.password,
+					lavozmId: Number(values.positionId),
+					departmentId: Number(values.departmentId),
+				});
+				toast.success("O'qituvchi qo'shildi");
+			}
+			handleClose();
+			onSuccess?.();
+		} catch {
+			toast.error("O'qituvchi qo'shishda xatolik");
 		}
-		handleClose();
 	};
 
 	return (
