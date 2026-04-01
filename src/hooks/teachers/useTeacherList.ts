@@ -14,7 +14,7 @@ export const useTeacherList = () => {
 		setLoading(true);
 		setError(null);
 		try {
-			const res = await TeacherService.search("", page, size);
+			const res = await TeacherService.getAll(page, size);
 			setData(res.data.body);
 			setTotalElements(res.data.totalElements);
 		} catch (err: any) {

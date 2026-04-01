@@ -18,42 +18,6 @@ export type Publication = {
 	pdfName: string | null;
 };
 
-export const MOCK_PUBLICATIONS: Publication[] = [
-	{
-		id: 1,
-		name: "Neyron tarmoqlar yordamida kasalliklarni erta aniqlash",
-		description: "Chuqur o'rganish asosida tibbiy tasvirlarni tahlil qilish metodikasi",
-		researcher: "Karimov Jasur Aliyevich",
-		university: "Toshkent tibbiyot akademiyasi",
-		year: "2023",
-		level: "YUQORI",
-		status: "TUGALLANGAN",
-		pdfName: "neural_medical.pdf",
-	},
-	{
-		id: 2,
-		name: "Kvant hisoblash algoritmlarining samaradorligi",
-		description: "Kvant kompyuterlarida optimallashtirish masalalarini yechish",
-		researcher: "Toshmatov Behruz Salimovich",
-		university: "TATU",
-		year: "2024",
-		level: "YUQORI",
-		status: "JARAYONDA",
-		pdfName: null,
-	},
-	{
-		id: 3,
-		name: "O'zbek tilini qayta ishlashda transformer modellari",
-		description: "O'zbek tili uchun NLP modellarini o'rgatish va baholash",
-		researcher: "Nazarova Dilnoza Hamidovna",
-		university: "NUUz",
-		year: "2022",
-		level: "O'RTA",
-		status: "TUGALLANGAN",
-		pdfName: "uzbek_nlp.pdf",
-	},
-];
-
 const LEVEL_STYLES: Record<Publication["level"], string> = {
 	YUQORI: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50",
 	"O'RTA": "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-50",
@@ -101,7 +65,7 @@ const columns: ColumnDef<Publication>[] = [
 			return (
 				<Badge
 					className={
-						status === "TUGALLANGAN"
+						status === "TUGALLANDAN"
 							? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
 							: "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-50"
 					}
@@ -133,7 +97,7 @@ const columns: ColumnDef<Publication>[] = [
 		id: "actions",
 		header: () => <div className="text-center">Amallar</div>,
 		cell: ({ row }) => (
-			<div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
+			<div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center gap-2">
 				<button
 					type="button"
 					onClick={() => console.log("edit", row.original)}
@@ -156,7 +120,7 @@ const columns: ColumnDef<Publication>[] = [
 	},
 ];
 
-export function PublicationsTab() {
+export function PublicationsTab({ data }: { data: Publication[] }) {
 	const { open } = useModalActions();
 
 	const cols: ColumnDef<Publication>[] = columns.map((col) => {
@@ -189,5 +153,5 @@ export function PublicationsTab() {
 		return col;
 	});
 
-	return <DataTable columns={cols} data={MOCK_PUBLICATIONS} />;
+	return <DataTable columns={cols} data={data} />;
 }

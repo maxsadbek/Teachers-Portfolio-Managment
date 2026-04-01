@@ -11,7 +11,6 @@ import { useState } from "react";
 import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
 import { ActivityTabs } from "./activity-tabs";
 import { MOCK_RESEARCHES } from "./detail-tabs/researches-tab";
-import { MOCK_PUBLICATIONS } from "./detail-tabs/publications-tab";
 import { MOCK_NASHRLAR } from "./detail-tabs/nashrlar-tab";
 import { MOCK_MASLAHATLAR } from "./detail-tabs/maslahat-tab";
 import { ResearchModal } from "./detail-modals/research-modal";
@@ -74,7 +73,6 @@ export default function TeacherDetail() {
 	};
 	const TAB_COUNTS: Record<string, number> = {
 		researches: MOCK_RESEARCHES.length,
-		publications: MOCK_PUBLICATIONS.length,
 		supervision: MOCK_NASHRLAR.length,
 		activities: MOCK_MASLAHATLAR.length,
 		awards: 0,
