@@ -33,6 +33,9 @@ const API_ENDPOINTS = {
 		EDIT: "/teacher/edit",
 		SEARCH: "/teacher/search",
 	},
+	RESEARCH: {
+		GETBYID: "/research/byUser",
+	},
 };
 
 export const { LOGIN, USER, FILE, COLLAGE, DEPARTMENTS, POSITION, TEACHER } = API_ENDPOINTS;

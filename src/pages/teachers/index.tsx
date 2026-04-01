@@ -3,7 +3,7 @@ import type { ColumnDef } from "@/components/data-table/data-table";
 import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
 import { Button } from "@/ui/button";
 import { Pencil, Plus, Trash2 } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { useNavigate } from "react-router";
 import type { Teacher } from "../../features/teacher/teacher.type";
 import { useTeacherSheetActions } from "@/store/teacherSheet";
@@ -78,7 +78,8 @@ export default function Teachers() {
 	const navigate = useNavigate();
 	const { data, totalElements, loading, refetch } = useTeacherList();
 	const { remove, loading: deleteLoading } = useTeacherDelete();
-	const handleDelete = async (row: Teacher) => {
+
+	const handleDelete = useCallback(async (row: Teacher) => {
 		try {
 			await remove(row.id);
 			toast.success("O'qituvchi o'chirildi");
@@ -86,13 +87,13 @@ export default function Teachers() {
 		} catch {
 			toast.error("O'chirishda xatolik yuz berdi");
 		}
-	};
+	}, [remove, refetch]);
 
-	const handleEdit = (row: Teacher) => {
+	const handleEdit = useCallback((row: Teacher) => {
 		open(row);
-	};
+	}, [open]);
 
-	const columns = useMemo(() => createColumns(handleEdit, handleDelete), [open, remove]);
+	const columns = useMemo(() => createColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
 	return (
 		<div className="flex flex-col gap-4">
