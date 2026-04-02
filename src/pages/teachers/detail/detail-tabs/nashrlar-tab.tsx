@@ -20,48 +20,6 @@ export type Nashr = {
 	pdfName: string | null;
 };
 
-export const MOCK_NASHRLAR: Nashr[] = [
-	{
-		id: 1,
-		name: "Machine Learning in Medical Imaging",
-		description: "Tibbiy tasvirlashda mashinali o'rganish usullarini qo'llash bo'yicha tadqiqot",
-		year: "2023",
-		organization: "Springer",
-		type: "MAQOLA",
-		authorship: "MUALLIF",
-		level: "XALQARO",
-		volume: "Vol. 14",
-		popularity: "POPULAR",
-		pdfName: "ml_medical.pdf",
-	},
-	{
-		id: 2,
-		name: "Informatika asoslari",
-		description: "Oliy ta'lim muassasalari uchun mo'ljallangan darslik",
-		year: "2022",
-		organization: "O'zbekiston",
-		type: "KITOB",
-		authorship: "HAMMUALLIF",
-		level: "MAHALLIY",
-		volume: "",
-		popularity: "ODDIY",
-		pdfName: null,
-	},
-	{
-		id: 3,
-		name: "Kvant algoritmlar samaradorligi",
-		description: "Kvant hisoblashda optimallashtirish algoritmlarining qiyosiy tahlili",
-		year: "2024",
-		organization: "IEEE",
-		type: "TADQIQOT",
-		authorship: "MUALLIF",
-		level: "XALQARO",
-		volume: "Vol. 8",
-		popularity: "POPULAR",
-		pdfName: "quantum_algo.pdf",
-	},
-];
-
 const TYPE_STYLES: Record<Nashr["type"], string> = {
 	MAQOLA: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50",
 	KITOB: "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50",
@@ -212,5 +170,5 @@ export function NashrlarTab() {
 		return col;
 	});
 
-	return <DataTable columns={cols} data={MOCK_NASHRLAR} />;
+	return <DataTable columns={cols} data={[]} />;
 }

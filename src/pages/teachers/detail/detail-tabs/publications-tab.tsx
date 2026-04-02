@@ -6,6 +6,8 @@ import { useModalActions } from "@/store/modalStore";
 import { Badge } from "@/ui/badge";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 
+export type PublicationLevel = "YUQORI" | "O'RTA" | "BOSHLANG'ICH";
+
 export type Publication = {
 	id: number;
 	name: string;
@@ -13,7 +15,7 @@ export type Publication = {
 	researcher: string;
 	university: string;
 	year: string;
-	level: "YUQORI" | "O'RTA" | "BOSHLANG'ICH";
+	level: PublicationLevel;
 	status: "JARAYONDA" | "TUGALLANGAN";
 	pdfName: string | null;
 };
@@ -120,7 +122,7 @@ const columns: ColumnDef<Publication>[] = [
 	},
 ];
 
-export function PublicationsTab({ data }: { data: Publication[] }) {
+export function PublicationsTab({ data = [] }: { data?: Publication[] }) {
 	const { open } = useModalActions();
 
 	const cols: ColumnDef<Publication>[] = columns.map((col) => {
