@@ -17,39 +17,6 @@ export type Research = {
 	pdfName: string | null;
 };
 
-export const MOCK_RESEARCHES: Research[] = [
-	{
-		id: 1,
-		name: "Sun'iy intellekt va tibbiyot diagnostikasi",
-		description: "Chuqur o'rganish algoritmlarini tibbiy tasvirlashda qo'llash",
-		year: "2023",
-		organization: "Toshkent tibbiyot akademiyasi",
-		membershipType: "XALQARO",
-		status: "JARAYONDA",
-		pdfName: "research_ai_medicine.pdf",
-	},
-	{
-		id: 2,
-		name: "Yangi avlod antibibiotiklar sintezi",
-		description: "Rezistentlikka qarshi faol birikmalar sintezi va tahlili",
-		year: "2022",
-		organization: "O'zbekiston Fanlar Akademiyasi",
-		membershipType: "MILLIY",
-		status: "TUGALLANGAN",
-		pdfName: "antibiotics_synthesis.pdf",
-	},
-	{
-		id: 3,
-		name: "Nano materiallar asosida dori etkazish tizimlari",
-		description: "Maqsadli dori etkazishda nanozarralar qo'llanilishi",
-		year: "2024",
-		organization: "MIT hamkorligi",
-		membershipType: "XALQARO",
-		status: "JARAYONDA",
-		pdfName: null,
-	},
-];
-
 export function ResearchesTab() {
 	const { open } = useModalActions();
 
@@ -155,5 +122,5 @@ export function ResearchesTab() {
 		},
 	];
 
-	return <DataTable columns={columns} data={MOCK_RESEARCHES} />;
+	return <DataTable columns={columns} data={[]} />;
 }

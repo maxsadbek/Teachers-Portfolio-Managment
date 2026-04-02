@@ -10,7 +10,6 @@ import { ProfileForm } from "./detail-profile/profile-form";
 import { useState } from "react";
 import { TableToolbar } from "@/components/table-toolbar/table-toolbar";
 import { ActivityTabs } from "./activity-tabs";
-import { MOCK_RESEARCHES } from "./detail-tabs/researches-tab";
 import { MOCK_NASHRLAR } from "./detail-tabs/nashrlar-tab";
 import { MOCK_MASLAHATLAR } from "./detail-tabs/maslahat-tab";
 import { ResearchModal } from "./detail-modals/research-modal";
@@ -72,7 +71,6 @@ export default function TeacherDetail() {
 		awards: "Mukofot qo'shish",
 	};
 	const TAB_COUNTS: Record<string, number> = {
-		researches: MOCK_RESEARCHES.length,
 		supervision: MOCK_NASHRLAR.length,
 		activities: MOCK_MASLAHATLAR.length,
 		awards: 0,

@@ -103,7 +103,7 @@ export default function Teachers() {
 					<span className="bg-primary/10 text-primary text-[13px] font-bold px-2.5 py-0.5 rounded-full">
 						{totalElements}
 					</span>
-				</div>
+				</div>	
 				<Button size="sm" className="h-9 gap-1.5" onClick={() => open()}>
 					<Plus className="size-4" />
 					O'qituvchi qo'shish

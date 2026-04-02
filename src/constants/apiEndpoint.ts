@@ -34,8 +34,38 @@ const API_ENDPOINTS = {
 		SEARCH: "/teacher/search",
 	},
 	RESEARCH: {
-		GETBYID: "/research/byUser",
+		GET_ALL: "/research",
+		GET_BY_ID: "/research",
+		GET_BY_USER: "/research/byUser",
+		CREATE: "/research",
+		UPDATE: "/research",
+		DELETE: "/research",
+	},
+	NAZORAT: {
+		GET_ALL: "/nazorat",
+		GET_BY_ID: "/nazorat",
+		GET_BY_USER: "/nazorat/byUser",
+		CREATE: "/nazorat",
+		UPDATE: "/nazorat",
+		DELETE: "/nazorat",
+	},
+	CONSULTATION: {
+		GET_ALL: "/maslahat",
+		GET_BY_ID: "/maslahat",
+		GET_BY_USER: "/maslahat/byUser",
+		CREATE: "/maslahat",
+		UPDATE: "/maslahat",
+		DELETE: "/maslahat",
+	},
+	AWARD: {
+		GET_ALL: "/award",
+		GET_BY_ID: "/award",
+		GET_BY_USER: "/award/byUser",
+		CREATE: "/award",
+		UPDATE: "/award",
+		DELETE: "/award",
 	},
 };
 
-export const { LOGIN, USER, FILE, COLLAGE, DEPARTMENTS, POSITION, TEACHER } = API_ENDPOINTS;
+export const { LOGIN, USER, FILE, COLLAGE, DEPARTMENTS, POSITION, TEACHER, RESEARCH, NAZORAT, CONSULTATION, AWARD } =
+	API_ENDPOINTS;
