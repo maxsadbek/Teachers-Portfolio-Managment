@@ -2,8 +2,9 @@ import { DataTable } from "@/components/data-table/data-table";
 import type { ColumnDef } from "@/components/data-table/data-table";
 import { ConfirmPopover } from "@/components/confirm-popover/confirm-popover";
 import { Button } from "@/ui/button";
-import { Pencil, Plus, Trash2 } from "lucide-react";
-import { useMemo, useCallback } from "react";
+import { Input } from "@/ui/input";
+import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { useMemo, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import type { Teacher } from "../../features/teacher/teacher.type";
 import { useTeacherSheetActions } from "@/store/teacherSheet";
@@ -11,6 +12,15 @@ import { TeacherSheet } from "./teacher-sheet";
 import { useTeacherList } from "../../hooks/teachers/useTeacherList";
 import { useTeacherDelete } from "../../hooks/teachers/useTeacherDelete";
 import { toast } from "sonner";
+import { DEPARTMENTS, POSITIONS } from "./data";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/ui/select";
+import { useDebounce } from "@/hooks/teachers/useDebounce";
 
 function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) => void): ColumnDef<Teacher>[] {
 	return [
@@ -76,8 +86,19 @@ function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) 
 export default function Teachers() {
 	const { open } = useTeacherSheetActions();
 	const navigate = useNavigate();
-	const { data, totalElements, loading, refetch } = useTeacherList();
 	const { remove, loading: deleteLoading } = useTeacherDelete();
+
+	const [search, setSearch] = useState("");
+	const [departmentId, setDepartmentId] = useState<string>("all");
+	const [positionId, setPositionId] = useState<string>("all");
+
+	const debouncedSearch = useDebounce(search, 500);
+
+	const { data, totalElements, loading, refetch } = useTeacherList({
+		search: debouncedSearch || undefined,
+		departmentId: departmentId !== "all" ? Number(departmentId) : undefined,
+		positionId: positionId !== "all" ? Number(positionId) : undefined,
+	});
 
 	const handleDelete = useCallback(async (row: Teacher) => {
 		try {
@@ -103,11 +124,52 @@ export default function Teachers() {
 					<span className="bg-primary/10 text-primary text-[13px] font-bold px-2.5 py-0.5 rounded-full">
 						{totalElements}
 					</span>
-				</div>	
+				</div>
 				<Button size="sm" className="h-9 gap-1.5" onClick={() => open()}>
 					<Plus className="size-4" />
 					O'qituvchi qo'shish
 				</Button>
+			</div>
+
+			{/* Toolbar */}
+			<div className="flex items-center gap-2">
+				<div className="relative flex-1">
+					<Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+					<Input
+						placeholder="Ism bo'yicha qidirish..."
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+						className="pl-9 h-9 text-[13px]"
+					/>
+				</div>
+
+				<Select value={departmentId} onValueChange={setDepartmentId}>
+					<SelectTrigger className="h-9 w-[200px] text-[13px]">
+						<SelectValue placeholder="Kafedra bo'yicha" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">Kafedra bo'yicha</SelectItem>
+						{DEPARTMENTS.map((d) => (
+							<SelectItem key={d.value} value={d.value}>
+								{d.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+
+				<Select value={positionId} onValueChange={setPositionId}>
+					<SelectTrigger className="h-9 w-[180px] text-[13px]">
+						<SelectValue placeholder="Lavozim bo'yicha" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">Lavozim bo'yicha</SelectItem>
+						{POSITIONS.map((p) => (
+							<SelectItem key={p.value} value={p.value}>
+								{p.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 			</div>
 
 			<DataTable

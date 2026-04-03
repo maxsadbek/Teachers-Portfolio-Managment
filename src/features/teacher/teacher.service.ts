@@ -9,11 +9,30 @@ import {
 	SearchTeacherResponse,
 } from "./teacher.type";
 
+export interface TeacherSearchParams {
+	search?: string;
+	departmentId?: number;
+	positionId?: number;
+}
+
 export const TeacherService = {
-	getAll(page = 0, size = 10) {
-		return apiClient.get<SearchTeacherResponse>(TEACHER.SEARCH, {
-			params: { query: "", page, size },
-		});
+	getAll(page = 0, size = 10, params?: TeacherSearchParams) {
+		const queryParams: Record<string, any> = {
+			query: params?.search ?? "",
+			page,
+			size,
+		};
+
+		if (params?.departmentId !== undefined) {
+			queryParams.departmentId = params.departmentId;
+		}
+
+		if (params?.positionId !== undefined) {
+			queryParams.positionId = params.positionId;
+			queryParams.lavozmId = params.positionId;
+		}
+
+		return apiClient.get<SearchTeacherResponse>(TEACHER.SEARCH, { params: queryParams });
 	},
 
 	getById(id: number) {

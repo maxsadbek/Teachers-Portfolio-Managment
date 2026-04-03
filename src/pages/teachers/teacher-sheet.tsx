@@ -12,6 +12,7 @@ import { Controller, useForm } from "react-hook-form";
 import { DEPARTMENTS, FACULTIES, POSITIONS, type TeacherFormValues } from "./data";
 import { useTeacherSheetActions, useTeacherSheetEditData, useTeacherSheetIsOpen } from "@/store/teacherSheet";
 import { useTeacherCreate } from "../../hooks/teachers/useTeacherCreate";
+import { useTeacherEdit } from "../../hooks/teachers/useTeacherEdit";
 import { toast } from "sonner";
 
 // ─── Phone mask ───────────────────────────────────────────────────────────────
@@ -33,13 +34,23 @@ function formatPhone(digits: string): string {
 	return result;
 }
 
-interface TeacherSheetProps {
-	onSuccess?: () => void;
-}
-
 function extractDigits(formatted: string): string {
 	const all = formatted.replace(/\D/g, "");
 	return all.startsWith("998") ? all.slice(3) : all;
+}
+
+/** Convert a raw phone string from the server (e.g. "998901234567") to formatted display value */
+function serverPhoneToFormatted(raw: string | undefined | null): string {
+	if (!raw) return "+998";
+	const digits = raw.replace(/\D/g, "");
+	const local = digits.startsWith("998") ? digits.slice(3) : digits;
+	return formatPhone(local);
+}
+
+// ─── Props ────────────────────────────────────────────────────────────────────
+
+interface TeacherSheetProps {
+	onSuccess?: () => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -49,9 +60,12 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 	const editData = useTeacherSheetEditData();
 	const { close } = useTeacherSheetActions();
 	const isEdit = editData !== null;
+
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirm, setShowConfirm] = useState(false);
+
 	const { create, loading: createLoading } = useTeacherCreate();
+	const { edit, loading: editLoading } = useTeacherEdit();
 
 	const {
 		register,
@@ -77,17 +91,31 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 	const watchedFacultyId = watch("facultyId");
 	const watchedPassword = watch("password");
 
+	// Populate form when opening in edit mode
 	useEffect(() => {
 		if (editData) {
+			// Try to match by label since the server returns strings, not IDs
 			const faculty = FACULTIES.find((f) => f.label === editData.faculty);
 			const department = DEPARTMENTS.find((d) => d.label === editData.department);
-			const position = POSITIONS.find((p) => p.label === editData.position);
+			const position = POSITIONS.find((p) => p.label === editData.lavozim);
+
 			reset({
-				fullName: editData.name,
-				phone: "+998",
+				fullName: editData.fullName,
+				phone: serverPhoneToFormatted(editData.phoneNumber),
 				facultyId: faculty?.value ?? "",
 				departmentId: department?.value ?? "",
 				positionId: position?.value ?? "",
+				image: null,
+				password: "",
+				confirmPassword: "",
+			});
+		} else {
+			reset({
+				fullName: "",
+				phone: "+998",
+				facultyId: "",
+				departmentId: "",
+				positionId: "",
 				image: null,
 				password: "",
 				confirmPassword: "",
@@ -127,15 +155,23 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 
 	const onSubmit = async (values: TeacherFormValues) => {
 		try {
-			const digist = extractDigits(values.phone);
-			const phoneNumber = `998${digist}`;
+			const digits = extractDigits(values.phone);
+			const phoneNumber = `998${digits}`;
 
-			if (isEdit) {
-				console.log("edit:", editData?.id);
+			if (isEdit && editData) {
+				await edit(editData.id, {
+					fullName: values.fullName,
+					phoneNumber,
+					lavozmId: Number(values.positionId),
+					departmentId: Number(values.departmentId),
+					gender: editData.gender,
+					...(values.password ? { password: values.password } : {}),
+				});
+				toast.success("O'qituvchi tahrirlandi");
 			} else {
 				await create({
 					fullName: values.fullName,
-					phoneNumber: phoneNumber,
+					phoneNumber,
 					email: "",
 					biography: "",
 					input: null,
@@ -147,12 +183,15 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 				});
 				toast.success("O'qituvchi qo'shildi");
 			}
+
 			handleClose();
 			onSuccess?.();
 		} catch {
-			toast.error("O'qituvchi qo'shishda xatolik");
+			toast.error(isEdit ? "Tahrirlashda xatolik yuz berdi" : "O'qituvchi qo'shishda xatolik");
 		}
 	};
+
+	const isLoading = createLoading || editLoading;
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(v) => !v && handleClose()}>
@@ -280,7 +319,12 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 
 						{/* Parol */}
 						<div className="flex flex-col gap-2">
-							<Label htmlFor="password">Parol</Label>
+							<Label htmlFor="password">
+								Parol{" "}
+								{isEdit && (
+									<span className="text-muted-foreground font-normal">(o'zgartirmaslik uchun bo'sh qoldiring)</span>
+								)}
+							</Label>
 							<div className="relative">
 								<Input
 									id="password"
@@ -288,7 +332,7 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 									placeholder="Kamida 8 ta belgi"
 									className="pr-10"
 									{...register("password", {
-										required: "Parol kiritilishi shart",
+										required: isEdit ? false : "Parol kiritilishi shart",
 										minLength: {
 											value: 8,
 											message: "Parol kamida 8 ta belgidan iborat bo'lishi kerak",
@@ -316,8 +360,8 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 									placeholder="Parolni qayta kiriting"
 									className="pr-10"
 									{...register("confirmPassword", {
-										required: "Parolni tasdiqlash shart",
-										validate: (val) => val === watchedPassword || "Parollar mos kelmadi",
+										required: isEdit ? false : "Parolni tasdiqlash shart",
+										validate: (val) => !watchedPassword || val === watchedPassword || "Parollar mos kelmadi",
 									})}
 								/>
 								<button
@@ -336,11 +380,11 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 				</ScrollArea>
 
 				<div className="border-t px-6 py-4 flex items-center justify-end gap-2 shrink-0">
-					<Button type="button" variant="outline" onClick={handleClose}>
+					<Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>
 						Bekor qilish
 					</Button>
-					<Button type="submit" form="teacher-form">
-						Saqlash
+					<Button type="submit" form="teacher-form" disabled={isLoading}>
+						{isLoading ? "Saqlanmoqda..." : "Saqlash"}
 					</Button>
 				</div>
 			</SheetContent>
