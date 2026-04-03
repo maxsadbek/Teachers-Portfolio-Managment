@@ -13,13 +13,7 @@ import { useTeacherList } from "../../hooks/teachers/useTeacherList";
 import { useTeacherDelete } from "../../hooks/teachers/useTeacherDelete";
 import { toast } from "sonner";
 import { DEPARTMENTS, POSITIONS } from "./data";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
 import { useDebounce } from "@/hooks/teachers/useDebounce";
 
 function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) => void): ColumnDef<Teacher>[] {
@@ -32,19 +26,45 @@ function createColumns(onEdit: (row: Teacher) => void, onDelete: (row: Teacher) 
 		{
 			accessorKey: "fullName",
 			header: "F.I.Sh.",
-			cell: ({ row }) => (
-				<div className="flex items-center gap-2.5">
-					<div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-[13px] shrink-0">
-						{(row.getValue("fullName") as string).charAt(0).toUpperCase()}
+			cell: ({ row }) => {
+				const name = (row.getValue("fullName") as string) ?? "";
+				const imgUrl = row.original.imgUrl;
+				return (
+					<div className="flex items-center gap-2.5">
+						{imgUrl ? (
+							<img
+								src={imgUrl}
+								alt={name}
+								className="w-8 h-8 rounded-full object-cover shrink-0"
+								onError={(e) => {
+									e.currentTarget.style.display = "none";
+									const sibling = e.currentTarget.nextElementSibling as HTMLElement | null;
+									if (sibling) sibling.style.display = "flex";
+								}}
+							/>
+						) : null}
+						<div
+							className="w-8 h-8 rounded-full bg-emerald-100 items-center justify-center text-emerald-700 font-bold text-[13px] shrink-0"
+							style={{ display: imgUrl ? "none" : "flex" }}
+						>
+							{name.charAt(0).toUpperCase() || "?"}
+						</div>
+						<span className="font-medium text-[13px]">{name}</span>
 					</div>
-					<span className="font-medium text-[13px]">{row.getValue("fullName")}</span>
-				</div>
-			),
+				);
+			},
 		},
 		{
 			accessorKey: "phoneNumber",
 			header: "Telefon",
 			cell: ({ row }) => <span className="text-muted-foreground text-[13px]">{row.getValue("phoneNumber")}</span>,
+		},
+		{
+			accessorKey: "departmentName",
+			header: "Kafedra",
+			cell: ({ row }) => (
+				<span className="text-[13px] text-muted-foreground">{row.getValue("departmentName") ?? "—"}</span>
+			),
 		},
 		{
 			accessorKey: "lavozim",
@@ -89,30 +109,49 @@ export default function Teachers() {
 	const { remove, loading: deleteLoading } = useTeacherDelete();
 
 	const [search, setSearch] = useState("");
-	const [departmentId, setDepartmentId] = useState<string>("all");
-	const [positionId, setPositionId] = useState<string>("all");
+	const [departmentFilter, setDepartmentFilter] = useState<string>("all");
+	const [positionFilter, setPositionFilter] = useState<string>("all");
 
 	const debouncedSearch = useDebounce(search, 500);
 
-	const { data, totalElements, loading, refetch } = useTeacherList({
+	const {
+		data: rawData,
+		loading,
+		refetch,
+	} = useTeacherList({
 		search: debouncedSearch || undefined,
-		departmentId: departmentId !== "all" ? Number(departmentId) : undefined,
-		positionId: positionId !== "all" ? Number(positionId) : undefined,
 	});
 
-	const handleDelete = useCallback(async (row: Teacher) => {
-		try {
-			await remove(row.id);
-			toast.success("O'qituvchi o'chirildi");
-			refetch();
-		} catch {
-			toast.error("O'chirishda xatolik yuz berdi");
-		}
-	}, [remove, refetch]);
+	const data = useMemo(() => {
+		let filtered = rawData;
 
-	const handleEdit = useCallback((row: Teacher) => {
-		open(row);
-	}, [open]);
+		if (departmentFilter !== "all") {
+			const label = DEPARTMENTS.find((d) => d.value === departmentFilter)?.label ?? "";
+			filtered = filtered.filter((t) => t.departmentName?.trim().toLowerCase() === label.trim().toLowerCase());
+		}
+
+		if (positionFilter !== "all") {
+			const label = POSITIONS.find((p) => p.value === positionFilter)?.label ?? "";
+			filtered = filtered.filter((t) => t.lavozim?.trim().toLowerCase() === label.trim().toLowerCase());
+		}
+
+		return filtered;
+	}, [rawData, departmentFilter, positionFilter]);
+
+	const handleDelete = useCallback(
+		async (row: Teacher) => {
+			try {
+				await remove(row.id);
+				toast.success("O'qituvchi o'chirildi");
+				refetch();
+			} catch {
+				toast.error("O'chirishda xatolik yuz berdi");
+			}
+		},
+		[remove, refetch],
+	);
+
+	const handleEdit = useCallback((row: Teacher) => open(row), [open]);
 
 	const columns = useMemo(() => createColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
 
@@ -122,7 +161,7 @@ export default function Teachers() {
 				<div className="flex items-center gap-2">
 					<span className="text-[14px] font-semibold text-foreground">O'qituvchilar soni:</span>
 					<span className="bg-primary/10 text-primary text-[13px] font-bold px-2.5 py-0.5 rounded-full">
-						{totalElements}
+						{data.length}
 					</span>
 				</div>
 				<Button size="sm" className="h-9 gap-1.5" onClick={() => open()}>
@@ -131,7 +170,6 @@ export default function Teachers() {
 				</Button>
 			</div>
 
-			{/* Toolbar */}
 			<div className="flex items-center gap-2">
 				<div className="relative flex-1">
 					<Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
@@ -143,7 +181,7 @@ export default function Teachers() {
 					/>
 				</div>
 
-				<Select value={departmentId} onValueChange={setDepartmentId}>
+				<Select value={departmentFilter} onValueChange={setDepartmentFilter}>
 					<SelectTrigger className="h-9 w-[200px] text-[13px]">
 						<SelectValue placeholder="Kafedra bo'yicha" />
 					</SelectTrigger>
@@ -157,7 +195,7 @@ export default function Teachers() {
 					</SelectContent>
 				</Select>
 
-				<Select value={positionId} onValueChange={setPositionId}>
+				<Select value={positionFilter} onValueChange={setPositionFilter}>
 					<SelectTrigger className="h-9 w-[180px] text-[13px]">
 						<SelectValue placeholder="Lavozim bo'yicha" />
 					</SelectTrigger>

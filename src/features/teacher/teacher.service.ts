@@ -1,46 +1,39 @@
 import { apiClient } from "@/api/client";
 import { TEACHER } from "@/constants/apiEndpoint";
 import {
+	Teacher,
 	TeacherResponse,
 	CreateTeacherDTO,
 	UpdateTeacherProfileDTO,
 	EditTeacherDTO,
 	DeleteTeacherResponse,
-	SearchTeacherResponse,
 } from "./teacher.type";
+
+export interface TeacherPageResponse {
+	body: Teacher[];
+	page: number;
+	size: number;
+	totalElements: number;
+	totalPage: number;
+}
 
 export interface TeacherSearchParams {
 	search?: string;
-	departmentId?: number;
-	positionId?: number;
 }
 
 export const TeacherService = {
-	getAll(page = 0, size = 10, params?: TeacherSearchParams) {
-		const queryParams: Record<string, any> = {
-			query: params?.search ?? "",
-			page,
-			size,
-		};
-
-		if (params?.departmentId !== undefined) {
-			queryParams.departmentId = params.departmentId;
-		}
-
-		if (params?.positionId !== undefined) {
-			queryParams.positionId = params.positionId;
-			queryParams.lavozmId = params.positionId;
-		}
-
-		return apiClient.get<SearchTeacherResponse>(TEACHER.SEARCH, { params: queryParams });
+	getAll(page = 0, size = 100, params?: TeacherSearchParams) {
+		return apiClient.get<TeacherPageResponse>(TEACHER.SEARCH, {
+			params: {
+				query: params?.search ?? "",
+				page,
+				size,
+			},
+		});
 	},
 
 	getById(id: number) {
 		return apiClient.get<TeacherResponse>(`${TEACHER.GET_ONE}/${id}`);
-	},
-
-	search(query: string, page = 0, size = 10) {
-		return apiClient.get<SearchTeacherResponse>(TEACHER.SEARCH, { params: { query, page, size } });
 	},
 
 	create(data: CreateTeacherDTO) {

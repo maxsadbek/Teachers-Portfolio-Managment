@@ -15,7 +15,6 @@ import { useTeacherCreate } from "../../hooks/teachers/useTeacherCreate";
 import { useTeacherEdit } from "../../hooks/teachers/useTeacherEdit";
 import { toast } from "sonner";
 
-// ─── Phone mask ───────────────────────────────────────────────────────────────
 
 function formatPhone(digits: string): string {
 	const d = digits.slice(0, 9);
@@ -38,22 +37,15 @@ function extractDigits(formatted: string): string {
 	const all = formatted.replace(/\D/g, "");
 	return all.startsWith("998") ? all.slice(3) : all;
 }
-
-/** Convert a raw phone string from the server (e.g. "998901234567") to formatted display value */
 function serverPhoneToFormatted(raw: string | undefined | null): string {
 	if (!raw) return "+998";
 	const digits = raw.replace(/\D/g, "");
 	const local = digits.startsWith("998") ? digits.slice(3) : digits;
 	return formatPhone(local);
 }
-
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface TeacherSheetProps {
 	onSuccess?: () => void;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 	const isOpen = useTeacherSheetIsOpen();
@@ -91,10 +83,8 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 	const watchedFacultyId = watch("facultyId");
 	const watchedPassword = watch("password");
 
-	// Populate form when opening in edit mode
 	useEffect(() => {
 		if (editData) {
-			// Try to match by label since the server returns strings, not IDs
 			const faculty = FACULTIES.find((f) => f.label === editData.faculty);
 			const department = DEPARTMENTS.find((d) => d.label === editData.department);
 			const position = POSITIONS.find((p) => p.label === editData.lavozim);
@@ -186,8 +176,9 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 
 			handleClose();
 			onSuccess?.();
-		} catch {
-			toast.error(isEdit ? "Tahrirlashda xatolik yuz berdi" : "O'qituvchi qo'shishda xatolik");
+		} catch (err: any) {
+			const msg = err?.message || (isEdit ? "Tahrirlashda xatolik yuz berdi" : "O'qituvchi qo'shishda xatolik");
+			toast.error(msg);
 		}
 	};
 
@@ -202,7 +193,6 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 
 				<ScrollArea className="flex-1">
 					<form id="teacher-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 px-6 py-5">
-						{/* Rasm */}
 						<div className="flex flex-col gap-2">
 							<Label>
 								Rasm <span className="text-muted-foreground font-normal">(ixtiyoriy)</span>
@@ -216,7 +206,6 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 
 						<Separator />
 
-						{/* To'liq F.I.Sh. */}
 						<div className="flex flex-col gap-2">
 							<Label htmlFor="fullName">To'liq F.I.Sh.</Label>
 							<Input
@@ -230,7 +219,6 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 							{errors.fullName && <span className="text-[12px] text-red-500">{errors.fullName.message}</span>}
 						</div>
 
-						{/* Telefon */}
 						<div className="flex flex-col gap-2">
 							<Label htmlFor="phone">Telefon raqam</Label>
 							<Controller
@@ -255,7 +243,6 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 
 						<Separator />
 
-						{/* Fakultet */}
 						<div className="flex flex-col gap-2">
 							<Label>Fakultet</Label>
 							<Controller
@@ -275,7 +262,6 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 							{errors.facultyId && <span className="text-[12px] text-red-500">{errors.facultyId.message}</span>}
 						</div>
 
-						{/* Kafedra */}
 						<div className="flex flex-col gap-2">
 							<Label>Kafedra</Label>
 							<Controller
@@ -294,8 +280,6 @@ export function TeacherSheet({ onSuccess }: TeacherSheetProps) {
 							/>
 							{errors.departmentId && <span className="text-[12px] text-red-500">{errors.departmentId.message}</span>}
 						</div>
-
-						{/* Lavozim */}
 						<div className="flex flex-col gap-2">
 							<Label>Lavozim</Label>
 							<Controller
